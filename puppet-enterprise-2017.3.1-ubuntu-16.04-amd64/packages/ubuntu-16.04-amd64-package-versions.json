@@ -1,0 +1,135 @@
+{
+  "pe-puppet-enterprise-release": {
+    "version": "2017.3.1.0",
+    "md5": "222122ba5e9cb88e02d73d9439a97871",
+    "release": "1xenial",
+    "filename": "pe-puppet-enterprise-release_2017.3.1.0-1xenial_all.deb"
+  },
+  "puppet-agent": {
+    "version": "5.3.2",
+    "md5": "90bcccfc6d05c1278c0d984e9d1169d1",
+    "release": "1xenial",
+    "filename": "puppet-agent_5.3.2-1xenial_amd64.deb"
+  },
+  "pe-license": {
+    "version": "0.1.5.16",
+    "md5": "cecc721775726c8651aebefed481d5d1",
+    "release": "1puppet1"
+  },
+  "pe-installer": {
+    "version": "2017.3.1.0",
+    "md5": "07816dbaa6398cde7d74e692b8cdd472",
+    "release": "1xenial",
+    "filename": "pe-installer_2017.3.1.0-1xenial_amd64.deb"
+  },
+  "pe-puppet-license-cli": {
+    "version": "0.1.7.28",
+    "md5": "e5509605d644cb279a9b10773c683e3a",
+    "release": "1puppet1"
+  },
+  "pe-activemq": {
+    "version": "2017.3.5.14.3",
+    "md5": "c810577872156c5b1dfec08fa31be6d9",
+    "release": "3xenial",
+    "filename": "pe-activemq_2017.3.5.14.3-3xenial_all.deb"
+  },
+  "pe-java": {
+    "version": "2017.3.1.8.0.141",
+    "md5": "30d7736c3818fa654479899b12de7682",
+    "release": "1xenial"
+  },
+  "pe-client-tools": {
+    "version": "17.3.1",
+    "md5": "de1137f6ec9fae4fa418f603f01dde1b",
+    "release": "1xenial",
+    "filename": "pe-client-tools_17.3.1-1xenial_amd64.deb"
+  },
+  "pe-r10k": {
+    "version": "2.5.5.6",
+    "md5": "fb5bfca7c750682f5fcdf3b2402aed88",
+    "release": "1xenial"
+  },
+  "pe-orchestration-services": {
+    "version": "0.11.56",
+    "md5": "762319e345b7017a9c9905fcf030f9d6",
+    "release": "1puppet1",
+    "filename": "pe-orchestration-services_0.11.56-1puppet1_all.deb"
+  },
+  "pe-console-services": {
+    "version": "1.9.226",
+    "md5": "f32c4d0f2e44cae783aaf7c253ca7a9b",
+    "release": "1puppet1",
+    "filename": "pe-console-services_1.9.226-1puppet1_all.deb"
+  },
+  "pe-console-services-termini": {
+    "version": "1.9.226",
+    "md5": "863bb0300628ccb513851cca982fafe0",
+    "release": "1puppet1",
+    "filename": "pe-console-services-termini_1.9.226-1puppet1_all.deb"
+  },
+  "pe-puppetserver": {
+    "version": "2017.3.0.34",
+    "md5": "66db598c7ba6474351db495d438a6c63",
+    "release": "1puppet1",
+    "filename": "pe-puppetserver_2017.3.0.34-1puppet1_all.deb"
+  },
+  "pe-puppetdb": {
+    "version": "5.1.1",
+    "md5": "c69bba8d2cac1fb31b7cc0ee186eeae1",
+    "release": "1puppet1",
+    "filename": "pe-puppetdb_5.1.1-1puppet1_all.deb"
+  },
+  "pe-puppetdb-termini": {
+    "version": "5.1.1",
+    "md5": "2b34cdbdf78f9f89af6f0bf796908e1d",
+    "release": "1puppet1",
+    "filename": "pe-puppetdb-termini_5.1.1-1puppet1_all.deb"
+  },
+  "pe-nginx": {
+    "version": "2017.3.1.12.1",
+    "md5": "a52212120006482216f280aecb807707",
+    "release": "1xenial"
+  },
+  "pe-postgresql-server": {
+    "version": "2017.3.9.6.5",
+    "md5": "444caf7ed0ab7c16de39d664c4a1f56c",
+    "release": "1xenial",
+    "filename": "pe-postgresql-server_2017.3.9.6.5-1xenial_amd64.deb"
+  },
+  "pe-postgresql-contrib": {
+    "version": "2017.3.9.6.5",
+    "md5": "3b321494679e17f2404eadbddb68fbb6",
+    "release": "1xenial",
+    "filename": "pe-postgresql-contrib_2017.3.9.6.5-1xenial_amd64.deb"
+  },
+  "pe-postgresql": {
+    "version": "2017.3.9.6.5",
+    "md5": "c3734fcd1477ff0a6547bd26a5e16b4f",
+    "release": "1xenial",
+    "filename": "pe-postgresql_2017.3.9.6.5-1xenial_amd64.deb"
+  },
+  "pe-postgresql-devel": {
+    "version": "2017.3.9.6.5",
+    "md5": "97ddc80df8d5fb0a1b48d0e40820c575",
+    "release": "1xenial",
+    "filename": "pe-postgresql-devel_2017.3.9.6.5-1xenial_amd64.deb"
+  },
+  "pe-postgresql-pglogical": {
+    "version": "2017.3.1.2.1",
+    "md5": "a3534e21aef5cce1d284574570092f08",
+    "release": "4xenial",
+    "filename": "pe-postgresql-pglogical_2017.3.1.2.1-4xenial_amd64.deb"
+  },
+  "pe-modules": {
+    "version": "2017.3.1.3",
+    "md5": "be5638493d11abe8d9356e712f1fbb33",
+    "release": "1xenial",
+    "filename": "pe-modules_2017.3.1.3-1xenial_amd64.deb"
+  },
+  "pe-tasks": {
+    "version": "0.0.4",
+    "md5": "f93a7762e3cb757b31252292cdb8845e",
+    "release": "1xenial",
+    "filename": "pe-tasks_0.0.4-1xenial_amd64.deb"
+  }
+}

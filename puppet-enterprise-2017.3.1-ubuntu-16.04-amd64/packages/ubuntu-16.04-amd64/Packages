@@ -1,0 +1,527 @@
+Package: pe-activemq
+Version: 2017.3.5.14.3-3xenial
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 43056
+Depends: pe-java, pe-puppet-enterprise-release
+Breaks: pe-tanukiwrapper
+Replaces: pe-tanukiwrapper
+Filename: ./pe-activemq_2017.3.5.14.3-3xenial_all.deb
+Size: 37932272
+MD5sum: c810577872156c5b1dfec08fa31be6d9
+SHA1: e9ae4137d663192075676fad379f312fa34f6db0
+SHA256: 30f358a5d44fa2fac596a30682401c292b16f8d51eb6c542afa4a3fb198e87f2
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: Apache ActiveMQ is a JMS Compliant Messaging System
+ .
+ Contains the following components:
+ pe-activemq
+
+Package: pe-client-tools
+Version: 17.3.1-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppet.com>
+Installed-Size: 48265
+Filename: ./pe-client-tools_17.3.1-1xenial_amd64.deb
+Size: 7105094
+MD5sum: de1137f6ec9fae4fa418f603f01dde1b
+SHA1: e50d2ad1f87bbb37daa11d5e9a4c97b45db005db
+SHA256: 846887c2b8eaa1b7e186e3eb5b9ed80462157e661033914535678b0b000815ab
+Section: admin
+Priority: optional
+Homepage: https://www.puppet.com
+Description: Client tools for Puppet Enterprise
+ .
+ Contains the following components:
+ curl 7.51.0
+ leatherman 1.3.0
+ openssl 1.0.2k
+ orchestrator-client 2.0.1
+ puppet-access 2.4.0
+ puppet-ca-bundle 1.0.7
+ puppet-code 2.0.1
+ puppetdb-cli 1.2.1
+ runtime
+
+Package: pe-console-services
+Version: 1.9.226-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 49627
+Depends: pe-java, pe-puppet-enterprise-release, net-tools, adduser, procps
+Conflicts: pe-certificate-manager (<< 0.9-1puppet1), pe-console (<< 0.9-1puppet1), pe-console-auth (<< 1.9-1puppet1), pe-event-inspector (<< 0.9-1puppet1), pe-libevent (<< 2.9-1puppet1), pe-license-status (<< 0.9-1puppet1), pe-live-management (<< 1.9-1puppet1), pe-memcached (<< 1.9-1puppet1), pe-passenger (<< 5.9-1puppet1), pe-puppet-dashboard (<< 2.9-1puppet1), pe-rubycas-server (<< 1.1.18-1puppet1), pe-rubygem-rack (<< 1.9-1puppet1)
+Replaces: pe-certificate-manager (<< 0.9-1puppet1), pe-console (<< 0.9-1puppet1), pe-console-auth (<< 1.9-1puppet1), pe-event-inspector (<< 0.9-1puppet1), pe-libevent (<< 2.9-1puppet1), pe-license-status (<< 0.9-1puppet1), pe-live-management (<< 1.9-1puppet1), pe-memcached (<< 1.9-1puppet1), pe-passenger (<< 5.9-1puppet1), pe-puppet-dashboard (<< 2.9-1puppet1), pe-rubycas-server (<< 1.1.18-1puppet1), pe-rubygem-rack (<< 1.9-1puppet1)
+Filename: ./pe-console-services_1.9.226-1puppet1_all.deb
+Size: 44594486
+MD5sum: f32c4d0f2e44cae783aaf7c253ca7a9b
+SHA1: b4035f2ce38a91ad0fd02a8d29685001cff109fb
+SHA256: 4672cd16701f1c862bc2caa75d12c1eebe2589977b3a8c0511a45222a04cf8d2
+Section: utils
+Priority: optional
+Homepage: http://puppetlabs.com
+Description: Puppet Labs pe-console-services
+ Contains: Release artifacts for console services (puppetlabs.packages/pe-console-services 1.9.226,org.clojure/clojure 1.8.0,puppetlabs/classifier 1.13.36,puppetlabs/pe-console-auth-ui 2017.3.3,puppetlabs/pe-console-ui 2017.3.142,puppetlabs/pe-rbac-service 1.8.21,puppetlabs/trapperkeeper-metrics 1.1.0,puppetlabs/i18n 0.8.0,puppetlabs/jdbc-util 1.0.2,puppetlabs/ssl-utils 0.9.1,puppetlabs/trapperkeeper-status 0.7.1,puppetlabs/trapperkeeper-webserver-jetty9 2.1.0,puppetlabs/kitchensink 2.4.0,puppetlabs/http-client 0.9.0,puppetlabs/rbac-client 0.7.1,puppetlabs/ring-middleware 1.0.0,puppetlabs/dujour-version-check 0.2.1,cheshire/cheshire 5.8.0,clj-stacktrace/clj-stacktrace 0.2.8,clj-time/clj-time 0.11.0,commons-io/commons-io 2.4,compojure/compojure 1.5.0,com.taoensso/encore 1.32.0,hiccup/hiccup 1.0.5,liberator/liberator 0.12.0,org.slf4j/slf4j-api 1.7.20,org.tukaani/xz 1.5,org.clojure/tools.logging 0.3.1,org.clojure/tools.reader 1.0.0-beta2,prismatic/schema 1.1.1,ring/ring-defaults 0.3.0,ring/ring-json 0.4.0,slingshot/slingshot 0.12.2,stencil/stencil 0.5.0,com.google.guava/guava 18.0,migratus/migratus 0.8.30,org.postgresql/postgresql 9.4.1208.jre7,org.clojure/data.priority-map 0.0.7,org.clojure/core.cache 0.6.5)
+
+Package: pe-console-services-termini
+Source: pe-console-services
+Version: 1.9.226-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 25
+Depends: puppet-agent
+Conflicts: pe-classifier-terminus
+Replaces: pe-classifier-terminus
+Provides: pe-classifier-terminus
+Filename: ./pe-console-services-termini_1.9.226-1puppet1_all.deb
+Size: 3706
+MD5sum: 863bb0300628ccb513851cca982fafe0
+SHA1: 5d0c8a48d7cc7edecc03e174d629c840d9b39149
+SHA256: a714e486bf12975eb61d261e63d94f253f81d6ed387bd5bce2f5ea3bf728c9c2
+Section: utils
+Priority: optional
+Homepage: http://puppetlabs.com
+Description: Termini for pe-console-services
+ Contains terminus for:
+  pe-classifier (version 1.13.36)
+
+Package: pe-installer
+Version: 2017.3.1.0-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 19610
+Depends: puppet-agent
+Filename: ./pe-installer_2017.3.1.0-1xenial_amd64.deb
+Size: 5690360
+MD5sum: 07816dbaa6398cde7d74e692b8cdd472
+SHA1: 78e4405f5a99db15f0def2bb62ac4207951166b4
+SHA256: 6ce721c3524638adbfa90494fe6fd7f3112ecc9d4fbbcb73c58ee38da72c9ce9
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: Web installer interview
+ .
+ Contains the following components:
+ pe-installer 2017.3.0-rc0-28-g4ca7292
+
+Package: pe-java
+Version: 2017.3.1.8.0.141-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 135767
+Depends: puppet-agent, pe-puppet-enterprise-release
+Filename: ./pe-java_2017.3.1.8.0.141-1xenial_amd64.deb
+Size: 35075978
+MD5sum: 30d7736c3818fa654479899b12de7682
+SHA1: 8169d7616af0f383435dab22d3f9674f94359967
+SHA256: 221baa138175b514fa39bc462251d59d4e9f3e0c27275268ff00cadb2158663a
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: OpenJDK Development Kit (JDK)
+ .
+ Contains the following components:
+ pe-java
+
+Package: pe-license
+Version: 0.1.5.16-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 22
+Depends: puppet-agent
+Filename: ./pe-license_0.1.5.16-1puppet1_all.deb
+Size: 2666
+MD5sum: cecc721775726c8651aebefed481d5d1
+SHA1: d2243b607173f0d327f6016c126f15a11ced513c
+SHA256: 62a10bb396728afe1feb2ab47663790ca53be38e79a23f4c496e70d8a97fa5ea
+Section: ruby
+Priority: optional
+Homepage: http://puppetlabs.com/enterprise
+Description: Library for working with the Puppet Enterprise license and licensing status
+ Library for working with the Puppet Enterprise license and licensing status
+
+Package: pe-modules
+Version: 2017.3.1.3-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 9207
+Filename: ./pe-modules_2017.3.1.3-1xenial_amd64.deb
+Size: 748392
+MD5sum: be5638493d11abe8d9356e712f1fbb33
+SHA1: c573a8c7a1065f1498337142654342655ccbb74f
+SHA256: 48fbfe6caa5d35b5721db34ca9416e9f8d365e16e03c80c6c408ab4664f81483
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: Modules for Puppet Enterprise
+ .
+ Contains the following components:
+ pe_accounts 2017.1.0-rc0-2-gbfbde9a
+ pe_concat 1.1.2-2-g11b9527
+ pe_hocon 2016.2.0
+ pe_infrastructure 2017.3.1
+ pe_inifile 2016.5.0-9-gbef7515
+ pe_install 2017.3.1
+ pe_java_ks 2016.4.0-2-g842e297
+ pe_manager 2017.3.1
+ pe_nginx 2017.1.0-4-gdad6201
+ pe_postgresql 2016.5.0-8-g01c39e8
+ pe_puppet_authorization 2016.2.0-rc1-2-gffbef87
+ pe_r10k 2016.2.0-2-g5e70a18
+ pe_razor 1.0.1-21-g31cbaa2
+ pe_repo 2017.3.1
+ pe_staging 2015.3.0
+ pe_support_script 2016.5.0-101-g73c8483
+ puppet_enterprise 2017.3.1
+ static_files
+
+Package: pe-nginx
+Version: 2017.3.1.12.1-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 805
+Depends: puppet-agent, pe-puppet-enterprise-release
+Breaks: pe-httpd
+Replaces: pe-httpd
+Provides: pe-webserver
+Filename: ./pe-nginx_2017.3.1.12.1-1xenial_amd64.deb
+Size: 269482
+MD5sum: a52212120006482216f280aecb807707
+SHA1: 86eec11b7e55b841b6037f6205e077c3d665068d
+SHA256: 9e4f394ed5e4a427bb73352788ad71dbb3c89b7ae861fa36d8327e563d48da7d
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: Puppet Enterprise uses the nginx HTTP Server. nginx is an HTTP and reverse proxy server.
+ .
+ Contains the following components:
+ pe-nginx
+
+Package: pe-orchestration-services
+Version: 0.11.56-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 50930
+Depends: pe-java, pe-puppet-enterprise-release, net-tools, adduser, procps
+Filename: ./pe-orchestration-services_0.11.56-1puppet1_all.deb
+Size: 45819732
+MD5sum: 762319e345b7017a9c9905fcf030f9d6
+SHA1: 10e2f3e04953fe373f01a6236f44e8f93bda839a
+SHA256: e18188547511d8500c187ef4dd84a898017db28da75b9762b21bfec8edd8b674
+Section: utils
+Priority: optional
+Homepage: http://puppetlabs.com
+Description: Puppet Labs pe-orchestration-services
+ Contains: Release artifacts for orchestration services (puppetlabs.packages/pe-orchestration-services 0.11.56,puppetlabs/pcp-broker 1.4.3,puppetlabs/orchestrator 0.10.41)
+
+Package: pe-postgresql
+Version: 2017.3.9.6.5-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 43736
+Depends: pe-puppet-enterprise-release, puppet-agent, libldap-2.4-2, libc6, libedit2, zlib1g
+Breaks: pe-postgresql-server (<< 2017.3.9.6.5-1xenial)
+Replaces: pe-postgresql-server (<< 2017.3.9.6.5-1xenial)
+Filename: ./pe-postgresql_2017.3.9.6.5-1xenial_amd64.deb
+Size: 13651362
+MD5sum: c3734fcd1477ff0a6547bd26a5e16b4f
+SHA1: aaec6f9b656328c222403a0d61864f962b7a4465
+SHA256: 6d7fe48139a71d4d17a92dd7d8061adb46f5bd0900f05ff108bb3316d4da50da
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: PostgreSQL is an advanced Object-Relational database management system (DBMS) that supports almost all SQL constructs (including transactions, subselects and user-defined types and functions). The pe-postgresql package includes the client programs and libraries that you'll need to access the Puppet Enterprise PostgreSQL DBMS server. These PostgreSQL client programs are programs that directly manipulate the internal structure of PostgreSQL databases on a PostgreSQL server. These client programs can be located on the same machine with the PostgreSQL server, or may be on a remote machine which accesses a PostgreSQL server over a network connection. This package contains the command-line utilities for managing PostgreSQL databases on a PostgreSQL server. If you want to manipulate a PostgreSQL database on a local or remote PostgreSQL server, you need this package. You also need to install this package if you're installing the pe-postgresql-server package.
+ .
+ Contains the following components:
+ pe-postgresql
+
+Package: pe-postgresql-contrib
+Version: 2017.3.9.6.5-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 38221
+Depends: pe-puppet-enterprise-release, puppet-agent, pe-postgresql-server (= 2017.3.9.6.5-1xenial), pe-postgresql (= 2017.3.9.6.5-1xenial), libldap-2.4-2, libc6, libedit2, zlib1g, libossp-uuid16
+Breaks: pe-postgresql-server (<< 2017.3.9.6.5-1xenial)
+Replaces: pe-postgresql-server (<< 2017.3.9.6.5-1xenial)
+Filename: ./pe-postgresql-contrib_2017.3.9.6.5-1xenial_amd64.deb
+Size: 12447662
+MD5sum: 3b321494679e17f2404eadbddb68fbb6
+SHA1: ff220396b54d6460b7946736ec7eca9ebee6269d
+SHA256: e4c0643aebd1d5a5f500aa3ab616c893a4c0f9d6ec11ce39243c32792d802ec6
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: The pe-postgresql-contrib package contains contributed packages that are included in the PostgreSQL distribution.
+ .
+ Contains the following components:
+ pe-postgresql
+
+Package: pe-postgresql-devel
+Version: 2017.3.9.6.5-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 42336
+Depends: pe-puppet-enterprise-release, puppet-agent, pe-postgresql (= 2017.3.9.6.5-1xenial), libldap-2.4-2, libc6, libedit2, zlib1g, libkrb5-dev, comerr-dev
+Breaks: pe-postgresql (<< 2017.3.9.6.5-1xenial)
+Replaces: pe-postgresql (<< 2017.3.9.6.5-1xenial)
+Filename: ./pe-postgresql-devel_2017.3.9.6.5-1xenial_amd64.deb
+Size: 13050548
+MD5sum: 97ddc80df8d5fb0a1b48d0e40820c575
+SHA1: e64662506e9d7ea474bcc5ca2012256fcda0141e
+SHA256: 0a1894c778a97082d9eaa041b05e2398fd02cf2ce6a762a4b8e8a219348300fa
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: The pe-postgresql-devel package contains the header files and libraries needed to compile C or C++ applications which will directly interact with a PostgreSQL database management server and the ecpg Embedded C Postgres preprocessor. You need to install this package if you want to develop applications which will interact with a PostgreSQL server.
+ .
+ Contains the following components:
+ pe-postgresql
+
+Package: pe-postgresql-pglogical
+Version: 2017.3.1.2.1-4xenial
+Architecture: amd64
+Maintainer: 2nd Quadrant <packagers@2ndquadrant.com>
+Installed-Size: 293
+Depends: libpam0g, zlib1g, libedit2, pe-postgresql-server
+Filename: ./pe-postgresql-pglogical_2017.3.1.2.1-4xenial_amd64.deb
+Size: 80030
+MD5sum: a3534e21aef5cce1d284574570092f08
+SHA1: f39cd25d33fd6fd5a3f14187a947b4c849af09c6
+SHA256: f412442ee3dd7941a6dcd150e0eb75627428dc81262fe388b88406043d208854
+Section: admin
+Priority: optional
+Homepage: http://2ndquadrant.com/en/resources/pglogical
+Description: The pglogical extension for PostgreSQL
+ .
+ Contains the following components:
+ pglogical 1.2.1
+
+Package: pe-postgresql-server
+Version: 2017.3.9.6.5-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 54580
+Depends: pe-puppet-enterprise-release, puppet-agent, pe-postgresql (= 2017.3.9.6.5-1xenial), libldap-2.4-2, libc6, libedit2, zlib1g
+Breaks: pe-postgresql (<< 2017.3.9.6.5-1xenial), pe-postgresql-contrib (<< 2017.3.9.6.5-1xenial)
+Replaces: pe-postgresql (<< 2017.3.9.6.5-1xenial), pe-postgresql-contrib (<< 2017.3.9.6.5-1xenial)
+Filename: ./pe-postgresql-server_2017.3.9.6.5-1xenial_amd64.deb
+Size: 15896204
+MD5sum: 444caf7ed0ab7c16de39d664c4a1f56c
+SHA1: 26370efef2f422d0eeb768c1297824d25e7863c3
+SHA256: 1cb8273b31c88f4e7c2b9b49bc7dec135371382c17db202b052fa07eb896625f
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: The pe-postgre-server package includes the programs needed to create and run the Puppet Enterprise PostgreSQL server, which will in turn allow you to create and maintain PostgreSQL databases. PostgreSQL is an advanced Object-Relational database management system (DBMS) that supports almost all SQL constructs (including transactions, subselects and user-defined types and functions). You should install pe-postgresql-server if you want to create and maintain your own PostgreSQL databases and/or your own PostgreSQL server. You also need to install the pe-postgresql package.
+ .
+ Contains the following components:
+ pe-postgresql
+
+Package: pe-puppet-enterprise-release
+Version: 2017.3.1.0-1xenial
+Architecture: all
+Maintainer: Puppet Labs <info@puppet.com>
+Installed-Size: 44
+Depends: puppet-agent
+Filename: ./pe-puppet-enterprise-release_2017.3.1.0-1xenial_all.deb
+Size: 9004
+MD5sum: 222122ba5e9cb88e02d73d9439a97871
+SHA1: 08c81f321110d47ddcb3d05d1346c68a9491110f
+SHA256: d999f2c245d680a29c2e4230629f140750c29663d1e82e0025409ccb06a2318f
+Section: admin
+Priority: optional
+Homepage: http://www.puppetlabs.com
+Description: A simple package that lays out the file structure for Puppet Enterprise systems, and provides some basic files necessary for PE.
+ .
+ Contains the following components:
+ pe-puppet-enterprise-release
+
+Package: pe-puppet-license-cli
+Version: 0.1.7.28-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 25
+Depends: puppet-agent, pe-license
+Filename: ./pe-puppet-license-cli_0.1.7.28-1puppet1_all.deb
+Size: 3340
+MD5sum: e5509605d644cb279a9b10773c683e3a
+SHA1: dae14af432ad678ae9e938eaea3ddd105d90533f
+SHA256: 2a91505228182ed73b05e3bc48b2694a22e33b0a22fe1e05d779989f8072caa3
+Section: ruby
+Priority: optional
+Homepage: http://puppetlabs.com/enterprise
+Description: Command-line application for checking Puppet Enterprise license status
+ Command-line application for checking Puppet Enterprise license status
+
+Package: pe-puppetdb
+Version: 5.1.1-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 28387
+Depends: pe-java, pe-puppet-enterprise-release, net-tools, adduser, procps, puppet-agent
+Filename: ./pe-puppetdb_5.1.1-1puppet1_all.deb
+Size: 24440176
+MD5sum: c69bba8d2cac1fb31b7cc0ee186eeae1
+SHA1: 72ccfe359e31bc6c0c5cd37ceb1c513c3fe67e4c
+SHA256: 3a3702b18b9850e0b52bc0e0faf66aafed94ff266a166f7d946b5a30e8433c66
+Section: utils
+Priority: optional
+Homepage: http://puppetlabs.com
+Description: Puppet Labs pe-puppetdb
+ Contains: Library for replicating PuppetDB instances (puppetlabs/pe-puppetdb 5.1.1,org.clojure/clojure 1.8.0,puppetlabs/puppetdb 5.1.1-20170929_213254-gc1b6353,puppetlabs/pe-puppetdb-extensions 5.1.1,puppetlabs/trapperkeeper-webserver-jetty9 2.0.1)
+
+Package: pe-puppetdb-termini
+Source: pe-puppetdb
+Version: 5.1.1-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 101
+Depends: puppet-agent
+Conflicts: pe-puppetdb-terminus
+Replaces: pe-puppetdb-terminus
+Provides: pe-puppetdb-terminus
+Filename: ./pe-puppetdb-termini_5.1.1-1puppet1_all.deb
+Size: 18946
+MD5sum: 2b34cdbdf78f9f89af6f0bf796908e1d
+SHA1: fa5de654ab0ebc3d890ed15d6dccede5d9f958e2
+SHA256: a3697e950488b71f29c06eca118f5f439eb2864ca6c5222d14df663897d5c5dc
+Section: utils
+Priority: optional
+Homepage: http://puppetlabs.com
+Description: Termini for pe-puppetdb
+ Contains terminus for:
+  pe-puppetdb (version 5.1.1-20170929_213254-gc1b6353)
+
+Package: pe-puppetserver
+Version: 2017.3.0.34-1puppet1
+Architecture: all
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 82327
+Depends: pe-java, pe-puppet-enterprise-release, net-tools, adduser, procps, puppet-agent
+Conflicts: pe-puppetserver-common (<< 4.0-1puppet1)
+Replaces: pe-puppetserver-common (<< 4.0-1puppet1)
+Filename: ./pe-puppetserver_2017.3.0.34-1puppet1_all.deb
+Size: 70489294
+MD5sum: 66db598c7ba6474351db495d438a6c63
+SHA1: 2877a9f1689af60be43fde97558698fce44eca10
+SHA256: 508828b2f2bbe45f39297a41844ea483a5e4d00eac34de8ff0f6a47ad5fc74db
+Section: utils
+Priority: optional
+Homepage: http://puppetlabs.com
+Description: Puppet Labs pe-puppetserver
+ Contains: Release artifacts for PE Puppetserver (puppetlabs.packages/pe-puppetserver 2017.3.0.34,org.clojure/clojure 1.8.0,com.andrewmcveigh/cljs-time 0.3.13,puppetlabs/trapperkeeper-webserver-jetty9 2.1.0,puppetlabs/structured-logging 0.2.0,puppetlabs/pe-puppet-server-extensions 2017.3.5.0,puppetlabs/pcp-broker 1.4.3,puppetlabs/pe-file-sync 2017.3.0.5,puppetlabs/code-manager 2017.3.0.3,puppetlabs/analytics 0.1.3)
+
+Package: pe-r10k
+Version: 2.5.5.6-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 41296
+Depends: puppet-agent, pe-client-tools
+Conflicts: pe-client-tools (<< 16.4.0)
+Filename: ./pe-r10k_2.5.5.6-1xenial_amd64.deb
+Size: 7781062
+MD5sum: fb5bfca7c750682f5fcdf3b2402aed88
+SHA1: 766c7e37ec260401208fefcf73e3537b61adaa44
+SHA256: 6d98085f23a7d38c54941300fa678dc8d2420f6f3d0ba11a7b767f25d2e0316c
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: R10k for Puppet Enterprise
+ .
+ Contains the following components:
+ libgit2 0.25.1
+ libssh2 1.7.0
+ r10k-yaml-example 0.0.1
+ rubygem-colored 1.2
+ rubygem-cri 2.6.1
+ rubygem-ethon 0.9.0
+ rubygem-faraday 0.9.1
+ rubygem-faraday_middleware 0.9.1
+ rubygem-faraday_middleware-multi_json 0.0.6
+ rubygem-ffi 1.9.10
+ rubygem-log4r 1.1.10
+ rubygem-minitar 0.6.1
+ rubygem-multi_json 1.11.0
+ rubygem-multipart-post 2.0.0
+ rubygem-puppet_forge 2.2.2
+ rubygem-r10k 2.5.5
+ rubygem-rugged 0.25.1.1
+ rubygem-typhoeus 1.0.2
+
+Package: pe-tasks
+Version: 0.0.4-1xenial
+Architecture: amd64
+Maintainer: Puppet <info@puppet.com>
+Installed-Size: 257
+Filename: ./pe-tasks_0.0.4-1xenial_amd64.deb
+Size: 20624
+MD5sum: f93a7762e3cb757b31252292cdb8845e
+SHA1: c4f2669446ead247551db40bf27ff657bb62fa9e
+SHA256: 0245f29dc939a08d80e627902de4114e5df8267426aa65a9f2b6cd6cd8673867
+Section: admin
+Priority: optional
+Homepage: https://www.puppet.com
+Description: Tasks for Puppet Enterprise
+ .
+ Contains the following components:
+ facter_task 0.1.3
+ package 0.1.4
+ puppet_conf 0.1.4
+ service 0.1.3
+
+Package: puppet-agent
+Version: 5.3.2-1xenial
+Architecture: amd64
+Maintainer: Puppet Labs <info@puppetlabs.com>
+Installed-Size: 88643
+Depends: tar, libreadline6
+Conflicts: pe-r10k (<< 2.5.0.0)
+Breaks: cfacter (<< 0.5.0), facter (<< 3.0.0), hiera (<< 2.0.0), mcollective (<< 3.0.0), mcollective-client (<< 3.0.0), mcollective-common (<< 3.0.0), mcollective-doc, pe-agent, pe-augeas, pe-cloud-provisioner, pe-cloud-provisioner-libs, pe-facter, pe-hiera, pe-libldap, pe-libyaml, pe-mcollective, pe-mcollective-client, pe-mcollective-common, pe-openssl, pe-puppet, pe-puppet-enterprise-release (<< 4.0.0), pe-puppetserver-common (<< 4.0.0), pe-ruby, pe-ruby-augeas, pe-ruby-ldap, pe-ruby-mysql, pe-ruby-rgen, pe-ruby-shadow, pe-ruby-stomp, pe-rubygem-deep-merge, pe-rubygem-gem2rpm, pe-rubygem-net-ssh, pe-rubygems, pe-virt-what, puppet (<< 4.0.0), puppet-common (<< 4.0.0)
+Replaces: cfacter (<< 0.5.0), facter (<< 3.0.0), hiera (<< 2.0.0), mcollective (<< 3.0.0), mcollective-client (<< 3.0.0), mcollective-common (<< 3.0.0), mcollective-doc, pe-agent, pe-augeas, pe-cloud-provisioner, pe-cloud-provisioner-libs, pe-facter, pe-hiera, pe-libldap, pe-libyaml, pe-mcollective, pe-mcollective-client, pe-mcollective-common, pe-openssl, pe-puppet, pe-puppet-enterprise-release (<< 4.0.0), pe-puppetserver-common (<< 4.0.0), pe-ruby, pe-ruby-augeas, pe-ruby-ldap, pe-ruby-mysql, pe-ruby-rgen, pe-ruby-shadow, pe-ruby-stomp, pe-rubygem-deep-merge, pe-rubygem-gem2rpm, pe-rubygem-net-ssh, pe-rubygems, pe-virt-what, puppet (<< 4.0.0), puppet-common (<< 4.0.0)
+Provides: cfacter, facter, hiera, mcollective, mcollective-client, mcollective-common, puppet, puppet-common
+Filename: ./puppet-agent_5.3.2-1xenial_amd64.deb
+Size: 15611292
+MD5sum: 90bcccfc6d05c1278c0d984e9d1169d1
+SHA1: 2e00bb1a8efde43f54b8850e1570f4213d887316
+SHA256: cda4a8591cf5a19deb59dc9a4833bdf12439908ebbb92d67273426e5bd11ddda
+Section: admin
+Priority: optional
+Homepage: https://www.puppetlabs.com
+Description: The Puppet Agent package contains all of the elements needed to run puppet, including ruby, facter, hiera and mcollective.
+ .
+ Contains the following components:
+ augeas 1.8.1
+ cpp-hocon 0.1.5
+ cpp-pcp-client 1.5.4
+ curl 7.55.1
+ dmidecode 2.12
+ facter 3.9.2
+ hiera 3.4.2
+ leatherman 1.2.1
+ libwhereami 0.1.2
+ libxml2 2.9.4
+ libxslt 1.1.29
+ marionette-collective 2.11.3
+ openssl 1.0.2k
+ puppet 5.3.2
+ puppet-ca-bundle 1.0.8
+ pxp-agent 1.8.0
+ ruby-2.4.1 2.4.1
+ ruby-augeas 0.5.0
+ ruby-shadow 2.3.3
+ ruby-stomp 1.3.3
+ rubygem-deep-merge 1.0.1
+ rubygem-fast_gettext 1.1.0
+ rubygem-gettext 3.2.2
+ rubygem-gettext-setup 0.28
+ rubygem-hocon 1.2.5
+ rubygem-locale 2.1.2
+ rubygem-net-ssh 4.1.0
+ rubygem-semantic_puppet 0.1.2
+ rubygem-text 1.3.1
+ runtime
+ shellpath 2015-09-18
+ virt-what 1.14
+ wrapper-script
+

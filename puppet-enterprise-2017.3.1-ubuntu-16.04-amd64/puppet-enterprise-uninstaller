@@ -1,0 +1,2360 @@
+#!/bin/bash
+
+#==========================================================
+# Copyright @ 2016 Puppet, Inc.
+# Redistribution prohibited.
+# Address: 308 SW 2nd Ave., 5th Floor Portland, OR 97204
+# Phone: (877) 575-9775
+# Email: info@puppet.com
+#==========================================================
+
+#===[ Summary ]=========================================================
+
+# This script is sourced by the Puppet Enterprise installer and upgrader and
+# provides helper functions for them.
+
+#===[ Conventions ]=====================================================
+
+# VARIABLES
+#
+# Variable names starting with "q_" are sanitized user answers to
+# questions asked by the `ask` function.
+#
+# Variable names starting with "t_" are transient variables for use
+# within a function. For example, "t_ask__name" is a transient variable
+# for storing a "name" within the "ask" function. This convention is
+# necessary because all POSIX sh variables are globals and there's no
+# way to localize the scope of variables to prevent functions from
+# stomping over each other's state.
+#
+# Variable names in all capital letters are globals that are
+# intentionally shared between different functions.
+
+#===[ Global Varables ]================================================
+# gettext i18n variables
+export TEXTDOMAINDIR
+readonly TEXTDOMAINDIR="$(pwd)/locales"
+export TEXTDOMAIN="puppet-enterprise"
+
+LOG_DIR_DESTINATION="/var/log/puppetlabs/installer"
+PUPPET_BIN_DIR="/opt/puppetlabs/puppet/bin"
+PUPPET_SHARE_DIR="/opt/puppetlabs/puppet/share"
+MODULE_DIR="/opt/puppetlabs/puppet/modules"
+SERVER_DIR="/opt/puppetlabs/server"
+SERVER_BIN_DIR="${SERVER_DIR?}/bin"
+SERVER_SHARE_DIR="${SERVER_DIR?}/share"
+SERVER_DATA_DIR="${SERVER_DIR?}/data"
+
+# Initialize gettext for i18n
+#
+# Falls back to a fake gettext() if gettext.sh can't be found so that the
+# user can still see output if they don't have gettext.
+if type gettext.sh >/dev/null 2>&1; then
+  # shellcheck disable=SC1091
+  . gettext.sh
+else
+  echo "[ERROR] Unable to load gettext.sh."
+  echo "[ERROR] Please install the gettext package if you would like translated instructions."
+
+  # Fake gettext function
+  gettext() {
+    printf "%s" "${1}"
+  }
+
+  # Fake eval_gettext function
+  eval_gettext() {
+    # shellcheck disable=SC2086
+    printf "%s" "$(eval echo \"${1}\")"
+  }
+fi
+
+#===[ Functions ]=======================================================
+
+# Stop executioning the program, after cleaning up.
+exception_handler() {
+    t_source_cut=`basename $0 | cut -d '-' -f 1,2`-
+    t_logfile_name=`basename ${LOGFILE}`
+    t_logfile_destination="${LOG_DIR_DESTINATION}/${t_logfile_name}"
+    if [ ${t_source_cut} = "puppet-enterprise-" ] ; then
+        case `basename $0 | cut -d '-' -f 3` in
+            installer)
+                t_operation="installation"
+                ;;
+            support)
+                t_operation="support script"
+                ;;
+            *)
+                t_operation="uninstallation"
+                ;;
+        esac
+    else
+        t_operation=`basename $0`
+    fi
+    try_stty echo
+    display_newline
+    display_major_separator
+    display_newline
+    if has_logfile ; then
+        t_error_message="There was an error running the ${t_operation}. Please see the ${t_logfile_destination} file for more info. ${t_instructions}"
+    else
+        t_error_message="There was an error running the ${t_operation}. Please see the last few lines of output for more info. ${t_instructions}"
+    fi
+    display_newline
+    echo "${t_error_message}" | display_wrapped_text
+    display_newline
+    # Users can acidentally remove their entire installation
+    # if they accidentally roll_back on upgrades so we don't get
+    # them the option
+    if ! is_upgrade ; then
+        if ! is_use_answers_file && ! is_noop && [ "${t_operation}" = 'installation' -a 'y' = "${OFFER_ROLL_BACK}" ] ; then
+            roll_back_installer_changes
+        fi
+    else
+        echo "Contact Puppet Labs support for assistance in completing this upgrade. If you want to completely remove Puppet Enterprise, run /opt/puppetlabs/bin/puppet-enterprise-uninstaller." | display_wrapped_text
+        display_newline
+    fi
+    quit 1
+}
+
+# Move log files into the /var/log/puppetlabs/installer directory for the support
+# script to pick up.
+copy_installer_log_files(){
+    # We may be running the support script, in which case the log file won't exist.
+    if has_logfile; then
+        # /var/log/puppetlabs/installer gets created by the pe-installer(higgs) package.
+        # if this is an upgrade or an install from the answers file, this directory
+        # may not exist. So create it.
+        if ! [ -d "${LOG_DIR_DESTINATION}" ] ; then
+            run_suppress_output "mkdir -p ${LOG_DIR_DESTINATION}"
+            run_suppress_output "chmod 700 ${LOG_DIR_DESTINATION}"
+        fi
+
+        run_suppress_output "cp ${LOGFILE} ${LOG_DIR_DESTINATION}"
+
+        # Save answers files to /var/log/puppetlabs/installer/
+        save_redacted_answers "${LOG_DIR_DESTINATION}/answers.install"
+    fi
+}
+
+roll_back_installer_changes(){
+    # Roll back using the uninstaller with the purge flag, and if this is a database install, -d also
+    # Make sure the uninstaller is present before even asking
+    t_uninstaller="$(installer_dir)/puppet-enterprise-uninstaller"
+    if [ -r "${t_uninstaller}" ] ; then
+        display_newline
+        echo "The Puppet Enterprise Installer can remove any Puppet Enterprise components and configuration files installed prior to this error." | display_wrapped_text
+        if [ 'y' = "${q_database_install?}" ] ; then
+            display_newline
+            echo "(Note: this does not include removal of any system packages installed and/or installed remote databases/users.)" | display_wrapped_text
+        fi
+        display_newline
+        ask q_roll_back_on_failure "Remove Puppet Enterprise components and configuration files?" yN
+        if [ 'y' = "${q_roll_back_on_failure}" ] ; then
+            if [ 'y' = "${q_database_install?}" -a 'y' = "${ROLL_BACK_DBS}" ] ; then
+                t_database_removal_flag='-d'
+            fi
+            run "/bin/bash ${t_uninstaller} ${t_database_removal_flag} -p -y"
+        fi
+    fi
+}
+
+# Invoke the exception_handler on CTRL-C or "set -e" errors.
+register_exception_handler() {
+    trap exception_handler INT TERM EXIT
+}
+
+# Remove the exception handler.
+unregister_exception_handler() {
+    trap - INT TERM EXIT
+}
+
+# Display a multiline string, because we can't rely on `echo` to do the right thing.
+#
+# Arguments:
+# 1. Text to display.
+display() {
+    printf "%s\n" "${1?}"
+}
+
+# Display a multiline string without a trailing newline.
+#
+# Arguments:
+# 1. Text to display.
+display_nonewline() {
+    printf "%s" "${1?}"
+}
+
+# Create the workdir, a temporary directory for use by the program, if needed.
+prepare_workdir() {
+    if [ -z "${WORKDIR:-""}" -o ! -d "${WORKDIR:-""}" ]; then
+        if type mktemp &> /dev/null; then
+            # NOTE: The `mktemp` command is not POSIX, but is supported by most UNIX variants:
+            WORKDIR=`mktemp -t -d tmp.puppet-enterprise-installer.XXXXXX`
+        else
+            # mktemp not available on AIX, so we use a new solution
+            WORKDIR=/tmp/puppet-enterprise-intaller.XXX-${RANDOM}
+            mkdir -p ${WORKDIR}
+        fi
+    fi
+}
+
+# Remove the workdir, a temporary directory used by this installer:
+remove_workdir() {
+    if [ ! -z "${WORKDIR:-""}" ]; then
+        if [ -d "${WORKDIR?}" ]; then
+            rm -rf "${WORKDIR?}"
+        fi
+        unset WORKDIR
+    fi
+}
+
+# Exit the installer and remove the workdir if it exists.
+#
+# Arguments:
+# 1. Exit value, defaults to 0.
+quit() {
+    unregister_exception_handler
+    remove_workdir
+    copy_installer_log_files
+
+    exit "${1:-"0"}"
+}
+
+# Display a newline
+display_newline() {
+    display ''
+}
+
+# Display an error message to STDERR, but do not exit.
+#
+# Arguments:
+# 1. Message to display.
+display_error() {
+    echo "!! ERROR: ${1?}" | display_wrapped_text 0 1>&2
+    display_newline 1>&2
+}
+
+# Display an error message to STDERR and exit the program.
+#
+# Arguments:
+# 1. Error message to display.
+display_failure() {
+    if [ -s ${WORKDIR?}/aix.rpm.errors ]; then
+        display_captured_errors
+    fi
+
+    display_error "${1?}"
+    display_footer
+    quit 1
+}
+
+# Display a failure within "prepare_platform".
+#
+# Arguments:
+# 1. Error message to display.
+display_platform_failure() {
+    IS_FAILURE=y
+
+    # Set default columns if needed
+    if [ -z "${PLATFORM_COLUMNS:-""}" ]; then
+        PLATFORM_COLUMNS=72
+    fi
+
+    display_failure "${1?}"
+}
+
+# Display usage information, optionally display error message.
+#
+# Arguments:
+# 1. Error message to display. Optional.
+display_usage() {
+    t_display_usage__error="${1:-""}"
+
+    display "
+USAGE: $(basename "${0?}") [-a ANSWER_FILE] [-A ANSWER_FILE] [-D] [-h] [-l LOG_FILE] [-n] [-q] [-V]
+
+OPTIONS:
+
+    -a <PATH_to_ANSWER_FILE>
+        Read answers from file and quit with error if an answer is missing.
+    -A <PATH_to_ANSWER_FILE>
+        Read answers from file and prompt for input if an answer is missing.
+        Full answer file is saved at:
+        $(installer_dir)/answers.lastrun.$(hostname -f)
+    -D
+        Display debugging information.
+        Must be run with the '-a' or '-A' flag.
+    -h
+        Display this help.
+    -l <PATH_to_LOG_FILE>
+        Log commands and results to file.
+        Must be run with the '-a' or '-A' flag.
+    -n
+        Run in 'noop' mode; show commands that would have been run
+        during installation without running them.
+        Must be run with the '-a' or '-A' flag.
+    -q
+        Run in quiet mode; the installation process is not displayed.
+        Must be run with the '-a' flag.
+    -V
+        Display very verbose debugging information.
+        Must be run with the '-a' or '-A' flag."
+
+    if [ ! -z "${t_display_usage__error?}" ]; then
+        display_newline
+        display_failure "${t_display_usage__error?}"
+    else
+        display_footer
+        quit
+    fi
+}
+
+# Display a step in the installation process.
+#
+# Arguments:
+# 1. Description of the step, e.g. "PERFORM INSTALLATION"
+# 2. Display newline afterwards? Defaults to 'y'.
+display_step() {
+    t_display_step__description="${1?}"
+    t_display_step__newline="${2:-"y"}"
+
+    if [ -z "${DISPLAY_STEP__NUMBER:-""}" ]; then
+        DISPLAY_STEP__NUMBER=1
+    else
+        DISPLAY_STEP__NUMBER=$(( 1 + ${DISPLAY_STEP__NUMBER?} ))
+    fi
+
+    display_newline
+    display_minor_separator
+    display_newline
+    display "STEP ${DISPLAY_STEP__NUMBER?}: ${t_display_step__description?}"
+
+    if [ y = "${t_display_step__newline?}" ]; then
+        display_newline
+    fi
+}
+
+# Display the name of a product and its description.
+#
+# Arguments:
+# 1. Name of product, e.g. "Puppet Strings"
+# 2. Description of the product, e.g. "Enterprise-quality strings for your marionettes."
+display_product() {
+    t_display_product__name="${1?}"
+    t_display_product__description="${2?}"
+
+    display "
+-> ${t_display_product__name?}
+
+$(echo "${t_display_product__description?}" | display_wrapped_text)
+"
+}
+
+# Display the comment line.
+#
+# Arguments:
+# 1. Comment to display.
+display_comment() {
+    display "## ${1?}"
+}
+
+# Display the fake commaned.
+#
+# Arguments:
+# 1. Command to display, e.g., "ls -la"
+display_placeholder() {
+    t_display_placeholder__message="++ ${1?}"
+
+    display "${t_display_placeholder__message?}"
+    if has_logfile; then
+        echo "${t_display_placeholder__message?}" >> "${LOGFILE?}"
+    fi
+}
+
+# Display a major separator line.
+display_major_separator() {
+    if [ -z "${t_display_major_separator:-""}" ]; then
+        t_display_major_separator="$(display_extend_text =)"
+    fi
+
+    display "${t_display_major_separator?}"
+}
+
+# Display a minor separator line.
+display_minor_separator() {
+    if [ -z "${t_display_minor_separator:-""}" ]; then
+        t_display_minor_separator="$(display_extend_text -)"
+    fi
+
+    display "${t_display_minor_separator?}"
+}
+
+# Display the header.
+display_header() {
+    display_major_separator
+    display_newline
+    display "Puppet Enterprise v${PE_VERSION} installer"
+    display_newline
+    display "Puppet Enterprise documentation can be found at http://docs.puppetlabs.com/pe/${PE_LINK_VER}/"
+}
+
+# Display the footer.
+display_footer() {
+    display_newline
+    display_major_separator
+}
+
+# Display a line of the given character extended to the full width of the terminal.
+#
+# Arguments:
+# 1. Character to display, e.g. "="
+display_extend_text() {
+    prepare_platform
+
+    echo "${1?}" "${PLATFORM_COLUMNS?}" | "${PLATFORM_AWK?}" '{ result=""; for (i = 1; i <= $2; i++) { printf($1) } }'
+}
+
+# Display wrapped, indented text..
+#
+# Arguments:
+# 1. Spaces to use for the initial line's indentation, e.g. 0
+# 2. Spaces to use for the Subsequent lines' indentation, e.g. 4
+# 3. Maximum width of the indented text before it's wrapped. Defaults to a sensible value.
+#
+# Example:
+#   echo "Hello world!" | display_wrapped_text 4 2 4
+display_wrapped_text() {
+    t_display_wrapped_text__initial="${1:-"3"}"
+    t_display_wrapped_text__subsequent="${2:-"3"}"
+    t_display_wrapped_text__maxlength="${3:-""}"
+
+    prepare_platform
+
+    # Set default maxlength value based on terminal width
+    if [ -z "${t_display_wrapped_text__maxlength?}" ]; then
+        t_display_wrapped_text__maxlength="$(( ${PLATFORM_COLUMNS?} - 4 ))"
+    fi
+
+    # If no awk is available, just use cat
+    if [ -z "${PLATFORM_AWK:-""}" ]; then
+        cat
+        return
+    fi
+
+    "${PLATFORM_AWK?}" -vmaxlength="${t_display_wrapped_text__maxlength?}" -vinitial="${t_display_wrapped_text__initial?}" -vsubsequent="${t_display_wrapped_text__subsequent?}" '
+        function set_indent() {
+            if (is_initial == 1)
+                spacing = initial
+            else
+                spacing = subsequent
+
+            if (spacing > 0)
+                indent = sprintf(("%" spacing "s"), " ")
+            else
+                indent = ""
+        }
+
+        BEGIN {
+            if (! maxlength)
+                maxlength = 72
+
+            if (! initial)
+                initial = 0
+
+            if (! subsequent)
+                subsequent = 0
+
+            buffer = ""
+            is_initial = 1
+            current = 0
+        }
+
+        {
+            if (NF) {
+                for (i = 1; i <= NF ; i++) {
+                    if (buffer == "") {
+                        buffer = $i
+                    } else {
+                        set_indent()
+
+                        if (length(indent) + length(buffer) + length($i) + 1 <= maxlength) {
+                            buffer = ( buffer " " $i )
+                        } else {
+                            if (is_initial == 1) {
+                                is_initial = 0
+                            }
+                            printf("%s%s\n", indent, buffer)
+                            buffer = $i
+                        }
+                    }
+                 }
+          } else {
+              buffer = ""
+              print
+          }
+        }
+
+        END {
+            if (length(buffer) > 0)
+                set_indent()
+                printf("%s%s", indent, buffer)
+        }
+    '
+}
+
+# Display a question, make the user answer it, and set a variable with their answer.
+#
+# Arguments:
+# 1. Name of the variable to export, e.g. "q_favorite_color"
+# 2. Question text to display, e.g. "What's your favorite color?"
+# 3. Kind of question, e.g. "Yn" to show a 'Y/n' prompt that defaults to 'yes', "yN" to show a y/N prompt that defaults to 'no', "String" for a manditory string response, "StringOrBlank" for an optional string response.
+# 4. Default answer, optional. Currently only supported for "String" questions.
+ask() {
+    t_ask__name="${1?}"
+    t_ask__question="${2?}"
+    t_ask__kind="${3?}"
+    t_ask__default="${4:-""}"
+
+    t_ask__message="?? ${t_ask__question?} "
+    case "${t_ask__kind?}" in
+        Yn)
+            t_ask__message="${t_ask__message?}[Y/n] "
+            ;;
+        yN)
+            t_ask__message="${t_ask__message?}[y/N] "
+            ;;
+        yn)
+            t_ask__message="${t_ask__message?}[y/n] "
+            ;;
+        cr)
+            t_ask__message="${t_ask__message?}[c/r] "
+            ;;
+        StringOrBlank)
+            t_ask__message="${t_ask__message?}[Default: (blank)] "
+            ;;
+        String*)
+            if [ ! -z "${t_ask__default?}" ]; then
+                t_ask__message="${t_ask__message?}[Default: ${t_ask__default?}] "
+            fi
+            ;;
+        Password*)
+            if [ ! -z "${t_ask__default?}" ]; then
+                t_ask__message="${t_ask__message?}[Default: ${t_ask__default?}] "
+            fi
+            ;;
+        *)
+            display_failure "Invalid question kind: ${t_ask__kind?}"
+            ;;
+    esac
+
+    # Try to load the answer from an existing variable, e.g. given name "q" look at variable "$q".
+    eval t_ask__answered=\$"${t_ask__name:-""}"
+
+    # Was the variable "$q" defined before the question was run, like if the answer file defined it?
+    eval '[ -n "${'"${t_ask__name:-}"'}" ] && t_ask__defined=0 || t_ask__defined=1'
+
+    t_ask__success=n
+    until [ y = "${t_ask__success?}" ]; do
+        echo "${t_ask__message?}" | display_wrapped_text 0
+        display_nonewline " "
+        if [ 0 = "${t_ask__defined?}" ]; then
+            if [ "${t_ask__kind?}" = "Password4" -o "${t_ask__kind?}" = "Password8" ]; then
+                t_ask__response="${t_ask__answered?}"
+                display ""
+                unset t_ask__answered
+            else
+                t_ask__response="${t_ask__answered?}"
+                display "${t_ask__response?}"
+                unset t_ask__answered
+            fi
+        else
+            if [ 0 != "${t_ask__defined?}" -a y = "${IS_ANSWER_REQUIRED:-""}" ]; then
+                display_newline
+                display_failure "Could not find response for above question in answer file. (Variable needed: ${t_ask__name?})"
+            fi
+            if [ "${t_ask__kind?}" = "Password4" -o "${t_ask__kind?}" = "Password8" ]; then
+                read -s -r t_ask__response; echo
+            else
+                read -r t_ask__response
+            fi
+        fi
+
+        case "${t_ask__kind?}" in
+            Yn)
+                if [ -z "${t_ask__response?}" -o y = "${t_ask__response?}" -o Y = "${t_ask__response?}" ]; then
+                    t_ask__answer=y
+                    t_ask__success=y
+                elif [ n = "${t_ask__response?}" -o N = "${t_ask__response?}" ]; then
+                    t_ask__answer=n
+                    t_ask__success=y
+                else
+                    display_error 'Answer must be either "y", "n" or <ENTER> for "y"'
+                fi
+                ;;
+            yN)
+                if [ y = "${t_ask__response?}" -o Y = "${t_ask__response?}" ]; then
+                    t_ask__answer=y
+                    t_ask__success=y
+                elif [ -z "${t_ask__response?}" -o n = "${t_ask__response?}" -o N = "${t_ask__response?}" ]; then
+                    t_ask__answer=n
+                    t_ask__success=y
+                else
+                    display_error 'Answer must be either "y", "n" or <ENTER> for "n"'
+                fi
+                ;;
+            yn)
+                if [ y = "${t_ask__response?}" -o Y = "${t_ask__response?}" ]; then
+                    t_ask__answer=y
+                    t_ask__success=y
+                elif [ n = "${t_ask__response?}" -o N = "${t_ask__response?}" ]; then
+                    t_ask__answer=n
+                    t_ask__success=y
+                else
+                    display_error 'Answer must be either "y", "n"'
+                fi
+                ;;
+            cr)
+                if [ c = "${t_ask__response?}" -o C = "${t_ask__response?}" ]; then
+                    t_ask__answer=c
+                    t_ask__success=y
+                elif [ r = "${t_ask__response?}" -o R = "${t_ask__response?}" ]; then
+                    t_ask__answer=r
+                    t_ask__success=y
+                else
+                    display_error 'Answer must be either "c", "r"'
+                fi
+                ;;
+            String)
+                if [ -z "${t_ask__response?}" -a ! -z "${t_ask__default?}" ]; then
+                    t_ask__answer="${t_ask__default?}"
+                    t_ask__success=y
+                elif [ ! -z ${t_ask__response?} ]; then
+                    t_ask__answer="${t_ask__response?}"
+                    t_ask__success=y
+                else
+                    display_error 'Answer must be a string'
+                fi
+                ;;
+            StringForceLowerCase)
+                if [ -z "${t_ask__response?}" -a ! -z "${t_ask__default?}" ]; then
+                    t_ask__answer="$(echo "${t_ask__default?}" | tr '[A-Z]' '[a-z]')"
+                    t_ask__success=y
+                elif [ ! -z ${t_ask__response?} ]; then
+                    t_ask__answer="$(echo "${t_ask__response?}" | tr '[A-Z]' '[a-z]')"
+                    t_ask__success=y
+                else
+                    display_error 'Answer must be a string'
+                fi
+                ;;
+            StringOrBlank)
+                t_ask__answer="${t_ask__response?}"
+                t_ask__success=y
+                ;;
+            Password4)
+                if [ 1 = "${t_ask__defined?}" ]; then
+                    LEN=${#t_ask__response}
+                    if [ $LEN -lt 4 ]; then
+                        t_ask__success=n
+                        display_error 'Password must be a minimum of 4 characters'
+                    elif echo "${t_ask__response?}" | ${PLATFORM_EGREP?} -q "'"; then
+                        t_ask__success=n
+                        display_error "Passwords may not contain the single quote (') character."
+                    else
+                        read -s -r -p "Confirm Password: " t_ask__response_confirm; echo
+                        if [ "${t_ask__response?}" = "${t_ask__response_confirm?}" ]; then
+                            t_ask__answer="${t_ask__response?}"
+                            t_ask__success=y
+                        else
+                            display_error 'Password mismatch: Please try again'
+                        fi
+                    fi
+                else
+                    t_ask__answer="${t_ask__response?}"
+                    t_ask__success=y
+                fi
+                ;;
+            Password8)
+                if [ 1 = "${t_ask__defined?}" ]; then
+                    LEN=${#t_ask__response}
+                    if [ $LEN -lt 8 ]; then
+                        t_ask__success=n
+                        display_error 'Password must be a minimum of 8 characters'
+                    elif echo "${t_ask__response?}" | ${PLATFORM_EGREP?} -q "'"; then
+                        t_ask__success=n
+                        display_error "Passwords may not contain the single quote (') character."
+                    else
+                        read -s -r -p "Confirm Password: " t_ask__response_confirm; echo
+                        if [ "${t_ask__response?}" = "${t_ask__response_confirm?}" ]; then
+                            t_ask__answer="${t_ask__response?}"
+                            t_ask__success=y
+                        else
+                            display_error 'Password mismatch: Please try again'
+                        fi
+                    fi
+                else
+                    t_ask__answer="${t_ask__response?}"
+                    t_ask__success=y
+                fi
+                ;;
+            *)
+                ;;
+        esac
+    done
+
+    eval "${t_ask__name?}='${t_ask__answer?}'"
+}
+
+# Wrapper for stty. Check for tty,
+# if not don't use stty
+#
+# Arguments:
+# 1. Argument to pass to stty
+try_stty() {
+    tty >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+         stty "${1}"
+    fi
+}
+
+# Execute a command if not in noop mode
+# If in debug mode, display the command to run
+#
+# Arguments:
+# 1. Command to execute, e.g. "ls -la"
+run() {
+    t_run__command="${1?}"
+    t_run__message="** ${t_run__command?}"
+
+    if is_debug; then
+        display "${t_run__message?}"
+    fi
+    if has_logfile; then
+        echo "${t_run__message?}" >> "${LOGFILE?}"
+    fi
+    if is_noop; then
+        return 0
+    else
+        if has_logfile; then
+            ( eval "${t_run__command?}" ) 2>&1 | tee -a "${LOGFILE?}"
+            # Return the status of the command, not tee
+            return "${PIPESTATUS[0]}"
+        else
+            ( eval "${t_run__command?}" )
+            return $?
+        fi
+    fi
+}
+
+# Executes a command using run() but suppresses standard output
+# unless running in debug mode
+run_suppress_stdout() {
+    t_run__command="${1?}"
+    if is_debug; then
+        run "${t_run__command}"
+    else
+        ( run "${t_run__command}" ) > /dev/null
+    fi
+    return $?
+}
+
+# Executes a command using run() but suppresses standard error
+# unless running in debug mode
+run_suppress_stderr() {
+    t_run__command="${1?}"
+    if is_debug; then
+        run "${t_run__command}"
+    else
+        ( run "${t_run__command}" ) 2> /dev/null
+    fi
+    return $?
+}
+
+# Executes a command using run() but suppresses all output
+# unless running in debug mode
+run_suppress_output() {
+    t_run__command="${1?}"
+    if is_debug; then
+        run "${t_run__command}"
+    else
+        ( run "${t_run__command}" ) &> /dev/null
+    fi
+    return $?
+}
+
+# Prepare variables storing platform information:
+# * PLATFORM_NAME : Name of the platorm, e.g. "centos".
+# * PLATFORM_TAG : Tag representing the platform, release and architecture, e.g. "centos-5-i386"
+# * PLATFORM_RELEASE : Release version, e.g. "10.10".
+# * PLATFORM_ARCHITECTURE : Architecture, e.g. "i386".
+# * PLATFORM_PACKAGING : Name of local packaging system, e.g. "dpkg".
+# * PLATFORM_AWK : Path to the desired awk, e.g. "nawk".
+# * PLATFORM_HOSTNAME : Fully-Qualified hostname of this machine, e.g. "myhost.mycompany.com".
+# * PLATFORM_HOSTNAME_SHORT : Shortened hostname of this machine, e.g. "myhost".
+# * PLATFORM_COLUMNS : Number of columns on the terminal or a reasonable default.
+prepare_platform() {
+
+    # Do not do detection if within a failure to avoid loop
+    if [ y = "${IS_FAILURE:-""}" ]; then
+        return
+    fi
+
+    prepare_workdir
+
+    # NONPORTABLE
+
+    # Awk
+    if [ -z "${PLATFORM_AWK:-""}" ]; then
+        for command in gawk nawk awk; do
+            if `echo '42' | ${command?} -v a=42 '{ print a;}' > /dev/null 2>&1`; then
+                PLATFORM_AWK="${command?}"
+                break
+            fi
+        done
+
+        if [ -z "${PLATFORM_AWK:-""}" ]; then
+            display_platform_failure "Can't find \"awk\" that accepts the -v flag in PATH -- please install it before continuing"
+        fi
+    fi
+
+    # JJM Default to grep -E to preserve existing behavior.
+    # Note, this function gets called over and over, so we need to be a bit defensive if the variable is already set.
+    if [ -z "${PLATFORM_EGREP}" ]; then
+        PLATFORM_EGREP='grep -E'
+    fi
+
+    # Name and release
+    if [ -z "${PLATFORM_NAME:-""}" -o -z "${PLATFORM_RELEASE:-""}" ]; then
+        VENDOR_PACKAGE_OFFLINE='false'
+        # First try identifying using lsb_release.  This takes care of Ubuntu (lsb-release is part of ubuntu-minimal).
+        if type lsb_release > /dev/null 2>&1; then
+            t_prepare_platform=`lsb_release -icr 2>&1`
+
+            PLATFORM_NAME="$(printf "${t_prepare_platform?}" | ${PLATFORM_EGREP?} '^Distributor ID:' | cut -s -d: -f2 | sed 's/[[:space:]]//' | tr '[[:upper:]]' '[[:lower:]]')"
+
+            # Sanitize name for unusual platforms
+            case "${PLATFORM_NAME?}" in
+                redhatenterpriseserver | redhatenterpriseclient | redhatenterpriseas | redhatenterprisees | enterpriseenterpriseserver | redhatenterpriseworkstation | redhatenterprisecomputenode | oracleserver)
+                    PLATFORM_NAME=rhel
+                    ;;
+                enterprise* )
+                    PLATFORM_NAME=centos
+                    ;;
+                scientific | scientifics | scientificsl )
+                    PLATFORM_NAME=rhel
+                    ;;
+                suse* )
+                    PLATFORM_NAME=sles
+                    ;;
+                amazonami )
+                    PLATFORM_NAME=amazon
+                    ;;
+                'cumulus networks' )
+                    PLATFORM_NAME=cumulus
+                    ;;
+            esac
+
+            # Release
+            PLATFORM_RELEASE="$(printf "${t_prepare_platform?}" | ${PLATFORM_EGREP?} '^Release:' | cut -s -d: -f2 | sed 's/[[:space:]]//g')"
+
+            # Sanitize release for unusual platforms
+            case "${PLATFORM_NAME?}" in
+                centos | rhel | sles )
+                    # Platform uses only number before period as the release, e.g. "CentOS 5.5" is release "5"
+                    PLATFORM_RELEASE="$(printf "${PLATFORM_RELEASE?}" | cut -d. -f1)"
+                    ;;
+                debian )
+                    # Platform uses only number before period as the release, e.g. "Debian 6.0.1" is release "6"
+                    PLATFORM_RELEASE="$(printf "${PLATFORM_RELEASE?}" | cut -d. -f1)"
+                    if [ ${PLATFORM_RELEASE} = "testing" ] ; then
+                        PLATFORM_RELEASE=7
+                    fi
+                    ;;
+                cumulus )
+                    # Platform uses first two numbers as the release, e.g. "Cumulus 2.2.2" is release "2.2"
+                    PLATFORM_RELEASE="$(printf "${PLATFORM_RELEASE?}" | cut -d. -f1,2)"
+                    ;;
+            esac
+        # Test for Solaris.
+        elif [ "x$(uname -s)" = "xSunOS" ]; then
+            PLATFORM_NAME="solaris"
+            t_platform_release="$(uname -r)"
+            # JJM We get back 5.10 but we only care about the right side of the decimal.
+            PLATFORM_RELEASE="${t_platform_release##*.}"
+            PLATFORM_EGREP='egrep'
+        elif [ "x$(uname -s)" = "xAIX" ] ; then
+            PLATFORM_NAME="aix"
+            t_platform_release="$(oslevel | cut -d'.' -f1,2)"
+            PLATFORM_RELEASE="${t_platform_release}"
+            PLATFORM_EGREP='egrep'
+            PLATFORM_ROOT_GROUP='system'
+            PLATFORM_ROOT_USER='root'
+            PLATFORM_PUPPET_GROUP='puppet'
+            PLATFORM_PUPPET_USER='puppet'
+            PLATFORM_PUPPET_HOME='/opt/freeware/var/lib/pe-puppet'
+
+        # Test for RHEL variant. RHEL, CentOS, OEL
+        elif [ -f /etc/redhat-release -a -r /etc/redhat-release -a -s /etc/redhat-release ]; then
+            # Oracle Enterprise Linux 5.3 and higher identify the same as RHEL
+            if grep -qi 'red hat enterprise' /etc/redhat-release; then
+                PLATFORM_NAME=rhel
+            elif grep -qi 'centos' /etc/redhat-release; then
+                PLATFORM_NAME=centos
+            elif grep -qi 'scientific' /etc/redhat-release; then
+                PLATFORM_NAME=rhel
+            elif grep -qi 'fedora' /etc/redhat-release; then
+                PLATFORM_NAME='fedora'
+            fi
+            # Release - take first digits after ' release ' only.
+            PLATFORM_RELEASE="$(sed 's/.*\ release\ \([[:digit:]]\+\).*/\1/g;q' /etc/redhat-release)"
+        # Test for Cumulus releases
+        elif [ -r "/etc/os-release" ] && ${PLATFORM_EGREP?} "Cumulus Linux" "/etc/os-release" &> /dev/null ; then
+            PLATFORM_NAME=cumulus
+            PLATFORM_RELEASE=`${PLATFORM_EGREP?} "VERSION_ID" "/etc/os-release" | cut -d'=' -f2 | cut -d'.' -f'1,2'`
+        elif [ -r "/etc/Eos-release" ] && ${PLATFORM_EGREP?} "Arista Networks EOS" "/etc/Eos-release" &> /dev/null ; then
+            PLATFORM_NAME=eos
+            PLATFORM_RELEASE=$(sed -n 's/^Arista Networks EOS v*\(.*\)$/\1/p' "/etc/Eos-release" | cut -d'.' -f1)
+        # Test for Debian releases
+        elif [ -f /etc/debian_version -a -r /etc/debian_version -a -s /etc/debian_version ]; then
+            t_prepare_platform__debian_version_file="/etc/debian_version"
+            t_prepare_platform__debian_version=`cat /etc/debian_version`
+
+            if cat "${t_prepare_platform__debian_version_file?}" | ${PLATFORM_EGREP?} '^[[:digit:]]' > /dev/null; then
+                PLATFORM_NAME=debian
+                PLATFORM_RELEASE="$(printf "${t_prepare_platform__debian_version?}" | sed 's/\..*//')"
+            elif cat "${t_prepare_platform__debian_version_file?}" | ${PLATFORM_EGREP?} '^wheezy' > /dev/null; then
+                PLATFORM_NAME=debian
+                PLATFORM_RELEASE="7"
+            fi
+        elif [ -f /etc/SuSE-release -a -r /etc/SuSE-release ]; then
+            t_prepare_platform__suse_version=`cat /etc/SuSE-release`
+
+            if printf "${t_prepare_platform__suse_version?}" | ${PLATFORM_EGREP?} 'Enterprise Server'; then
+                PLATFORM_NAME=sles
+                t_version=`/bin/cat /etc/SuSE-release | grep VERSION | sed 's/^VERSION = \(\d*\)/\1/' `
+                t_patchlevel=`cat /etc/SuSE-release | grep PATCHLEVEL | sed 's/^PATCHLEVEL = \(\d*\)/\1/' `
+                PLATFORM_RELEASE="${t_version}"
+            fi
+        elif [ -f /etc/system-release ]; then
+            if grep -qi 'amazon linux' /etc/system-release; then
+                PLATFORM_NAME=amazon
+                PLATFORM_RELEASE=6
+            else
+                display_platform_failure "$(cat /etc/system-release) is not a supported platform for Puppet Enterprise v${PE_VERSION}
+                    Please visit http://links.puppetlabs.com/puppet_enterprise_${PE_LINK_VER?}_platform_support to request support for this platform."
+
+            fi
+        elif [ -z "${PLATFORM_NAME:-""}" ]; then
+            display_platform_failure "$(uname -s) is not a supported platform for Puppet Enterprise v${PE_VERSION}
+            Please visit http://links.puppetlabs.com/puppet_enterprise_${PE_LINK_VER?}_platform_support to request support for this platform."
+        fi
+    fi
+
+    # Assign Default Values For Platform Specifics
+    PLATFORM_ROOT_USER=${PLATFORM_ROOT_USER:=root}
+    PLATFORM_ROOT_GROUP=${PLATFORM_ROOT_GROUP:=root}
+    PLATFORM_PUPPET_USER=${PLATFORM_PUPPET_USER:=pe-puppet}
+    PLATFORM_PUPPET_USER=${PLATFORM_PUPPET_GROUP:=pe-puppet}
+    PLATFORM_SYMLINK_TARGET=${PLATFORM_SYMLINK_TARGET:=/usr/local/bin}
+    PLATFORM_PUPPET_HOME=${PLATFORM_PUPPET_HOME:=/var/opt/lib/pe-puppet}
+
+    if [ -z "${PLATFORM_NAME:-""}" -o -z "${PLATFORM_RELEASE:-""}" ]; then
+        display_platform_failure "Unknown platform"
+    fi
+
+    case "${PLATFORM_NAME?}" in
+        centos | rhel )
+            case "${PLATFORM_RELEASE?}" in
+                4 )
+                    VENDOR_PACKAGE_OFFLINE='true'
+                    ;;
+            esac
+            ;;
+        sles )
+            if [ "10" = "${PLATFORM_RELEASE?}" ]; then
+                VENDOR_PACKAGE_OFFLINE='true'
+            fi
+            ;;
+    esac
+
+    # Packaging
+    if [ -z "${PLATFORM_PACKAGING:-""}" ]; then
+        case "${PLATFORM_NAME?}" in
+            centos | rhel | sles | amazon | aix | eos | fedora )
+                PLATFORM_PACKAGING=rpm
+                ;;
+            ubuntu | debian | cumulus)
+                PLATFORM_PACKAGING=dpkg
+                ;;
+            solaris )
+                case  "${PLATFORM_RELEASE?}" in
+                    10)
+                        PLATFORM_PACKAGING=pkgadd
+                        ;;
+                    11)
+                        PLATFORM_PACKAGING=ips
+                        ;;
+                esac
+                ;;
+            *)
+                display_platform_failure "Unknown packaging system for platform: ${PLATFORM_NAME?}"
+                ;;
+        esac
+    fi
+
+    # Architecture
+    if [ -z "${PLATFORM_ARCHITECTURE:-""}" ]; then
+        case "${PLATFORM_NAME?}" in
+            solaris | aix )
+                PLATFORM_ARCHITECTURE="$(uname -p)"
+                if [ "${PLATFORM_ARCHITECTURE}" = "powerpc" ] ; then
+                  PLATFORM_ARCHITECTURE='power'
+                fi
+                ;;
+            *)
+                PLATFORM_ARCHITECTURE="`uname -m`"
+                ;;
+        esac
+        case "${PLATFORM_ARCHITECTURE?}" in
+            x86_64)
+                case "${PLATFORM_NAME?}" in
+                    ubuntu | debian | cumulus )
+                        PLATFORM_ARCHITECTURE=amd64
+                        ;;
+                esac
+                ;;
+            i686)
+                PLATFORM_ARCHITECTURE=i386
+                ;;
+            ppc)
+                PLATFORM_ARCHITECTURE=powerpc
+                ;;
+        esac
+    fi
+
+    # Tag
+    if [ -z "${PLATFORM_TAG:-""}" ]; then
+        case "${PLATFORM_NAME?}" in
+            # Enterprise linux (centos & rhel) share the same packaging
+            # Amazon linux is similar enough for our packages
+            rhel | centos | amazon )
+                PLATFORM_TAG="el-${PLATFORM_RELEASE?}-${PLATFORM_ARCHITECTURE?}"
+                ;;
+            *)
+                PLATFORM_TAG="${PLATFORM_NAME?}-${PLATFORM_RELEASE?}-${PLATFORM_ARCHITECTURE?}"
+                ;;
+        esac
+    fi
+
+    # Columns
+    if [ -z "${PLATFORM_COLUMNS:-""}" ]; then
+        PLATFORM_COLUMNS="$(try_stty size 2>&1 | cut -s -d" " -f2)"
+        if ! (echo $PLATFORM_COLUMNS | ${PLATFORM_EGREP?} '^[[:digit:]]+$') > /dev/null 2>&1; then
+            PLATFORM_COLUMNS=72
+        fi
+    fi
+
+    # Hostname
+    if [ -z "${PLATFORM_HOSTNAME:-""}" ]; then
+        case "${PLATFORM_NAME?}" in
+            solaris)
+                # Calling hostname --fqdn on solaris will set the hostname to '--fqdn' so we don't do that.
+                # Note there is a single space and literal tab character inside the brackets to match spaces or tabs
+                # in resolv.conf
+                t_fqdn=`sed -n 's/^[ 	]*domain[ 	]*\(.*\)$/\1/p' /etc/resolv.conf`
+                t_host=`uname -n`
+                if [ -z $t_fqdn ]; then
+                    PLATFORM_HOSTNAME=${t_host?}
+                else
+                    PLATFORM_HOSTNAME="${t_host?}.${t_fqdn:-''}"
+                fi
+
+                PLATFORM_HOSTNAME_SHORT=${t_host?}
+                ;;
+            aix)
+                # As with solaris, calling `hostname --fqdn` sets the hostname
+                # to '--fqdn' if /opt/freeware/bin is in the path and we're
+                # calling GNU hostname. AIX also has AIX hostname, in /bin, in
+                # which `hostname` prints the fqdn, and `hostname -s` prints
+                # hostname with domain info trimmed. We use the AIX hostname
+                # because its more sane and reliably there.
+                PLATFORM_HOSTNAME=`/bin/hostname`
+                PLATFORM_HOSTNAME_SHORT=`/bin/hostname -s`
+                ;;
+            *)
+                if hostname --fqdn &> /dev/null; then
+                    PLATFORM_HOSTNAME=`hostname --fqdn 2> /dev/null`
+                else
+                    PLATFORM_HOSTNAME=`hostname`
+                fi
+
+                if hostname --short &> /dev/null; then
+                    PLATFORM_HOSTNAME_SHORT=`hostname --short 2> /dev/null`
+                else
+                    PLATFORM_HOSTNAME_SHORT=`echo "${PLATFORM_HOSTNAME}" | cut -d. -f1`
+                fi
+                ;;
+        esac
+    fi
+
+    # pgrep
+    if [ -z "${PLATFORM_PGREP}" ] ; then
+        case "${PLATFORM_NAME?}" in
+            aix)
+                PLATFORM_PGREP=aix_service_to_pid
+            ;;
+            *)
+                PLATFORM_PGREP=$(wherefore pgrep)
+            ;;
+        esac
+    fi
+}
+
+# Fail unless the current user has root privileges.
+prepare_user() {
+    case `basename $0` in
+        puppet-enterprise-uninstaller)
+            t_script_run="Puppet Enterprise Uninstaller"
+        ;;
+        *)
+            t_script_run="Puppet Enterprise Installer"
+    esac
+    t_user_error_message="The ${t_script_run} must be run by a user with \"root\" privileges."
+    # NONPORTABLE
+    case "${PLATFORM_NAME?}" in
+        solaris)
+            # JJM BASHISM NONPORTABLE
+            if [ ! "0" = "${EUID?}" ]; then
+                display_failure "${t_user_error_message}"
+            fi
+            ;;
+        *)
+            if [ ! "0" = "$(id -u)" ]; then
+                display_failure "${t_user_error_message}"
+            fi
+            ;;
+    esac
+}
+
+# AIX doesn't have pgrep. Not only that, the way it displays our services does
+# not actually include enough information to distinguish between puppet and
+# mcollective. That is, `ps -ef` will show '/opt/puppetlabs/puppet/bin/ruby' for both. We
+# can, however, get the PID for a service by parsing the output of `lssrcs -s
+# $servicename`. A caveat is that the PID is only displayed if the process is
+# in an active or stopping state, not stopped.
+# Arguments:
+# 1. The name of the service to search for
+# Prints:
+# the PID of that service, if running
+aix_service_to_pid() {
+    if /bin/lssrc -s ${1?} &>/dev/null ; then
+        if /bin/lssrc -s ${1?} | ${PLATFORM_EGREP?} -q "active|stopping" ; then
+            /bin/lssrc -s | xargs | ${PLATFORM_AWK} '{print $(NF-1)}'
+        else
+            return 1
+        fi
+    fi
+}
+
+# Make a backup copy of the file. Creates the backup in the same directory with a timestamp and ".bak" suffix.
+#
+# Arguments:
+# 1. File to backup.
+backup_file() {
+    t_backup_file__source="${1?}"
+    t_backup_file__target="${t_backup_file__source?}.`date '+%Y%m%dT%H%M%S'`.bak"
+
+    case "${PLATFORM_NAME?}" in
+        solaris)
+            t_cp='cp -p -r'
+            ;;
+        *)
+            t_cp='cp -a'
+            ;;
+    esac
+
+    if [ -e "${t_backup_file__source?}" ]; then
+        run "${t_cp?} ${t_backup_file__source?} ${t_backup_file__target?}"
+    fi
+}
+
+# Check rpm error log and try to remove directories that are empty after upgrade (fix poor rpm on AIX)
+remove_empty_directories() {
+    if [ -s "${WORKDIR?}/aix.rpm.errors" ]; then
+        for f in `cat ${WORKDIR?}/aix.rpm.errors | ${PLATFORM_EGREP?} "^cannot remove .* - directory not empty\$" | sed "s/^cannot remove \(.*\) - directory not empty\$/\1/g"`; do
+            [ -d "${f?}" ] && run_suppress_stderr "rmdir \"${f?}\" 2>/dev/null" || :
+        done
+    fi
+
+    display_captured_errors
+}
+
+display_captured_errors() {
+    if [ -s ${WORKDIR?}/aix.rpm.errors ]; then
+        # Display other errors than directories not being removed
+        cat ${WORKDIR?}/aix.rpm.errors | ${PLATFORM_EGREP?} -v "^cannot remove .* - directory not empty\$" || :
+        run_suppress_stderr "rm ${WORKDIR?}/aix.rpm.errors" || :
+    fi
+}
+
+# Utility function to canonicalize the path to a file.
+# If using Solaris, readlink is not defined, have to determine manually.
+# Otherwise just use readlink. Echoes the full path to a file.
+canonicalize_file() {
+    t_file_to_check="${1?}"
+    canonical_path=""
+    if [ "solaris" = "${PLATFORM_NAME}" ] || [ "aix" = "${PLATFORM_NAME}" ] ; then
+        if [ -L "${t_file_to_check}" ] ; then
+            # File is a link
+            canonical_path=`file -h "${t_file_to_check}" | cut -d' ' -f 4`
+        else
+            # expand possible tilde
+            eval t_file_to_check="${t_file_to_check}"
+            file_dir=`dirname ${t_file_to_check}`
+            # check if dir exists before trying to pushd, otherwise echo blank
+            if [ -d "${file_dir}" ] ; then
+                file_base=`basename "${t_file_to_check}"`
+                pushd "${file_dir}" > /dev/null 2>&1
+                full_path=$(pwd)
+                popd > /dev/null 2>&1
+                canonical_path="${full_path}/${file_base}"
+            fi
+        fi
+    else
+        canonical_path="$(readlink -f ${t_file_to_check})"
+    fi
+    echo "${canonical_path}"
+}
+
+# Display path to this installer. Optionally override this by exporting INSTALLER_DIR environment variable.
+installer_dir() {
+    if [ -z "${INSTALLER_DIR:-""}" ]; then
+        INSTALLER_DIR="$(canonicalize_file $(dirname "${0?}"))"
+    fi
+
+    echo "${INSTALLER_DIR?}"
+}
+
+# Display platform's package path, e.g. "packages/centos-5-x86_64".
+platform_package_dir() {
+    prepare_platform
+
+    echo "$(installer_dir)/packages/${PLATFORM_TAG?}"
+}
+
+# Display the platform in a form suitable for use as a Puppet class, eg
+# "centos_5_x86_64".
+platform_puppet_class() {
+  # Replace - with _ then delete all non-word characters.
+  echo "${PLATFORM_TAG?}" | tr - _ | tr -dc '[:alnum:]_'
+}
+
+# Load the answers from a file. The file is just a shell script that we source.
+#
+# Arguments:
+# 1. File to load answers from.
+load_answers() {
+    t_load_answers__file="${1?}"
+
+    if [ -f "${t_load_answers__file?}" ]; then
+        # Force the answer file to have Unix line-endings.
+        # \15 and \32 are the octal ASCII values for \r and substitute character, respectively.
+        tr -d '\15\32' < "${t_load_answers__file?}" > "${t_load_answers__file?}".placeholder
+        cat "${t_load_answers__file?}".placeholder > "${t_load_answers__file?}"
+        rm "${t_load_answers__file?}".placeholder
+
+        if [ '.' = "$(dirname "${t_load_answers__file?}")" -a ! "./" = "$( echo "${t_load_answers__file?}" | cut -c 1-2)" ]; then
+            # Some shells can only source files if given a path.
+            t_load_answers__file="./${t_load_answers__file?}"
+        fi
+
+        display_step 'READ ANSWERS FROM FILE'
+        display_comment "Reading answers from file: ${t_load_answers__file?}"
+        . "${t_load_answers__file?}"
+    else
+        display_failure "Can't find answers file: ${t_load_answers__file?}"
+    fi
+}
+
+# Running in noop mode? Return 0 if true.
+is_noop() {
+    if [ y = "${IS_NOOP:-""}" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Running in quiet mode? Return 0 if true
+is_quiet() {
+  if [ -n "${ANSWER_FILE_TO_LOAD}" -a y = "${IS_ANSWER_REQUIRED}" ] ; then
+    ANSWERS_PROVIDED=y
+  else
+    ANSWERS_PROVIDED=n
+  fi
+
+  if [ y = "${IS_SUPPRESS_OUTPUT:-""}" -a y = "${ANSWERS_PROVIDED}" ]; then
+      return 0
+  elif [ y = "${IS_SUPPRESS_OUTPUT:-""}" -a n = "${ANSWERS_PROVIDED}" ]; then
+      display_usage 'A complete answer file must be specified in order to run in quiet mode. Must be run with the "-a" flag'
+  else
+    return 1
+  fi
+}
+
+# Running from an answer file? Return 0 if true, else 1
+is_use_answers_file() {
+    if [ -z "${ANSWER_FILE_TO_LOAD}" ] ; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+# Running in debug mode? Return 0 if true.
+is_debug() {
+    if [ y = "${IS_DEBUG:-""}" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Running in very verbose debug mode? Return 0 if true.
+is_verbose_debug() {
+    if [ y = "${IS_VERBOSE_DEBUG:-""}" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Detected existing installation? Return 0 if true, else 1
+is_upgrade() {
+    if [ y = "${IS_UPGRADE}" ]; then
+      return 0
+    else
+      return 1
+    fi
+}
+
+# Was a logfile specified?
+has_logfile() {
+    if [ ! -z "${LOGFILE:-""}" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Is the package installed? Returns 0 for true, 1 for false.
+#
+# Arguments:
+# 1. Name of package.
+is_package_installed() {
+    prepare_platform
+
+    # NONPORTABLE
+    case "${PLATFORM_PACKAGING?}" in
+        rpm)
+            (rpm -qi "${1?}") > /dev/null 2>&1
+            return $?
+            ;;
+        dpkg)
+            (dpkg-query --show --showformat '${Package}:${Status}\\n' "${1?}" 2>&1 | grep ' installed') > /dev/null
+            return $?
+            ;;
+        pkgadd)
+            (pkginfo -l ${1?} | ${PLATFORM_EGREP?} 'STATUS:[:space:]*.*[:space:]*installed') &> /dev/null
+            return $?
+            ;;
+        ips)
+            run_suppress_output "pkg info ${1?}"
+            return $?
+            ;;
+        *)
+            display_failure "Do not know how to check if package is installed on this platform."
+            ;;
+    esac
+}
+
+run_quiet_mode() {
+  # suppress output from the install process
+  exec > /dev/null 2>&1
+}
+
+prepare_log_file() {
+    if [ -z "${LOGFILE}" ] ; then
+    	if [ -n "${1}" ] ; then
+            LOGFILE="${1}_log.lastrun"
+    	else
+    	    LOGFILE="default_log.lastrun"
+        fi
+
+        t_log_lastrun_basename="${LOGFILE?}"."${PLATFORM_HOSTNAME?}".log
+        t_installer_dir="$(pwd)"
+        if try_create_log_file "$t_installer_dir/${t_log_lastrun_basename?}" ; then
+            LOGFILE="$t_installer_dir/${t_log_lastrun_basename?}"
+        elif try_create_log_file "/tmp/${t_log_lastrun_basename?}" ; then
+            LOGFILE="/tmp/${t_log_lastrun_basename?}"
+        else
+            display_major_separator
+            display_newline
+            display_comment "Unable to write to the install log '${t_log_lastrun_basename?}' or '/tmp/${t_log_lastrun_basename?}'. Proceeding without logging."
+            LOGFILE=""
+        fi
+    else
+        LOGFILE="$(canonicalize_file "${LOGFILE}")"
+        if ! try_create_log_file "${LOGFILE?}" ; then
+            display_newline
+            display_comment "Unable to write to the specified log."
+            LOGFILE=""
+            ask LOGFILE "What is the path to a writable log file?" String
+            LOGFILE="$(canonicalize_file "${LOGFILE}")"
+            try_create_log_file "${LOGFILE}" || display_failure "Unable to write to specified log file."
+        fi
+    fi
+}
+
+try_create_log_file() {
+    t_log_to_use=${1}
+    # if log file is blank bail early
+    [ -z "t_log_to_use" ] && return 1
+
+    if touch ${t_log_to_use?} 2>/dev/null && chmod 600 ${t_log_to_use?} 2>/dev/null ; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Determines where the answer file should be written
+answer_file_to_save() {
+    t_lastrun_basename="answers.lastrun.${PLATFORM_HOSTNAME?}"
+    if touch "$(installer_dir)/${t_lastrun_basename}" 2>/dev/null ; then
+        echo "$(installer_dir)/${t_lastrun_basename}"
+    elif touch "/tmp/${t_lastrun_basename}" 2>/dev/null ; then
+        echo "/tmp/${t_lastrun_basename}"
+    else
+        echo ""
+    fi
+}
+
+save_redacted_answers() {
+    run_suppress_output "sed \"s/^\(q_.*password\)=.*/#\1=REDACTED/g\" < \"$(answer_file_to_save)\" > \"${1}\""
+}
+
+# Remove the platform-specific package repo. Do nothing on platforms where we
+# don't use a repo, or if the repo doesn't exist.
+remove_package_repo() {
+  case "${PLATFORM_PACKAGING?}" in
+    rpm)
+      case "${PLATFORM_NAME?}" in
+        sles)
+          if [ "10" != "${PLATFORM_RELEASE?}" ]; then
+            if zypper service-list | grep -q puppet-enterprise-installer; then
+              run "zypper service-delete puppet-enterprise-installer"
+            fi
+          fi
+          ;;
+        aix | eos)
+          # Don't remove anything
+          ;;
+        *)
+          t_el_4_regex="el-4-(i386|x86_64)"
+          if [[ ! "$PLATFORM_TAG" =~ ${t_el_4_regex?} ]] ; then
+              run "yum clean all --disablerepo='*' --enablerepo=puppet-enterprise-installer"
+              run "rm -f /etc/yum.repos.d/puppet-enterprise-installer.repo"
+          fi
+          ;;
+      esac
+      ;;
+    dpkg)
+      run "rm -f /etc/apt/sources.list.d/puppet-enterprise-installer.list"
+      run "apt-get update -qq"
+      ;;
+    ips)
+      # (RE-869) The repository we create lives in
+      # /etc/puppetlabs/installer/solaris.repo, and *must* remain on the system
+      # after install. If packages are installed in a non-global zone from a
+      # non-system repository (e.g. a file-based repository that was added to
+      # the non-global zone but not the global zone), and that repository and
+      # associated publisher are deleted, the same packages cannot be
+      # subsequently installed in the global zone. This is because while we
+      # deleted the repository and associated publisher from the non-global
+      # zone, it still retains information about the publisher to associate
+      # with the installed packages in /var/pkg/publisher.
+      # When later installing in the global zone, the pkg application in the
+      # global zone "recurses" into each non-global zone and attempts to
+      # verify/synchronize/something the publisher of the packages being installed with
+      # any of the same name in the non-global zone. If we remove this information from the
+      # non-global zone, the install in the global zone always fails.  To avoid this issue, we
+      # have to leave behind the repository on the system as long as PE is
+      # there. Note that we don't actually have to keep any packages in the
+      # repository, but we do need the skeleton/metadata present.
+      #
+      # Remove the packages from the repository to minimize size on disk, but
+      # retain the repository itself
+      run_suppress_output "pkgrepo remove -s 'file:///etc/puppetlabs/installer/solaris.repo' '*' || :"
+      ;;
+    *)
+      # Don't remove anything
+      ;;
+  esac
+}
+
+# Echo back either the AIO puppet bin dir path, or PE 3.x pe-agent
+# puppet bin dir.
+puppet_bin_dir() {
+    if [ -e "${PUPPET_BIN_DIR?}" ]; then
+        t_puppet_bin_dir="${PUPPET_BIN_DIR?}"
+    else
+        t_puppet_bin_dir=/opt/puppet/bin
+    fi
+    echo "${t_puppet_bin_dir?}"
+}
+
+# On solaris, `which` always returns 0, even if the binary does not exist. This
+# wrapper calls `ksh whence` on solaris, which accomplishes what we want, and
+# which on other platforms.
+wherefore() {
+  if [ "x${PLATFORM_NAME?}" = "xsolaris" ] ; then
+    ksh whence ${1?} 2> /dev/null
+  else
+    which ${1?} 2> /dev/null
+  fi
+  return $?
+}
+
+# Run puppet resource with the given arguments.
+puppet_resource() {
+  run_suppress_stdout "$(puppet_bin_dir)/puppet resource --modulepath=${MODULE_DIR?} --no-storeconfigs $@"
+}
+
+# END utilities
+
+#===[ Variables ]=======================================================
+
+# Variables that hold lists of dirs, files, users, services to kill/remove
+## Because the database files are in /opt/puppet/var/lib/pgsql, we have to tiptoe
+## around that directory when clearing things out of /opt/puppet
+t_pe_uninstall_dirs="/opt/puppet/activemq /opt/puppet/bin /opt/puppet/include /opt/puppet/lib /opt/puppet/libexec /opt/puppet/pe_version /opt/puppet/pe_build /opt/puppet/sbin /opt/puppet/share /opt/puppet/var/www /var/opt/lib/pe-puppet /var/opt/lib/pe-puppetmaster /var/opt/cache/pe-puppet-dashboard /var/log/pe-*"
+t_pe_uninstall_dirs="${t_pe_uninstall_dirs} /opt/puppetlabs/bin /opt/puppetlabs/puppet /opt/puppetlabs/mcollective /opt/puppetlabs/server/apps /opt/puppetlabs/server/bin /opt/puppetlabs/server/pe_* /opt/puppetlabs/server/share"
+t_pe_purge_dirs="/etc/puppetlabs /var/run/pe-memcached /var/opt/lib/pe-puppet /var/lib/peadmin /var/pkg/lost+found/etc/puppetlabs* /var/pkg/lost+found/opt/puppet* /var/log/puppetlabs /var/cache/puppetlabs /var/run/puppetlabs /run/puppetlabs"
+t_pe_files="/etc/init.d/pe-* /var/run/pe-*/* /var/run/pe-* /var/lock/subsys/pe-* /var/lock/pe-* /var/svc/manifest/network/pe-* /var/svc/manifest/network/puppet* /lib/svc/method/pe-*"
+t_pe_processes="puppetagent pe-puppetserver pe-console-services pe-puppet pe-puppet-agent pe-mcollective pe-nginx pe-activemq pe-puppet-dashboard-workers pe-puppetdb pe-postgresql puppet pe-orchestration-services"
+t_pe_users_and_groups="pe-webserver pe-puppet puppet-dashboard pe-activemq peadmin pe-mco mco pe-auth pe-puppetdb pe-postgres pe-console-services pe-orchestration-services"
+## If they are uninstalling everything *including* the database files, then we can just remove the
+## entirety of /opt/puppet and /opt/puppetlabs
+t_pe_uninstall_db_dirs="/opt/puppet /opt/puppetlabs"
+t_pe_packages_to_check='^(pe-.*|puppet-agent)$'
+t_pe_symlinks="puppet facter puppet-module mco pe-man hiera r10k"
+t_pe_cronjobs="report_baseline pe-mcollective-metadata pe-puppet-console-prune-task"
+t_pe_crond_files="default-add-all-nodes"
+t_pe_db_answers_file="/etc/puppetlabs/installer/database_info.install"
+
+#===[ Functions ]=======================================================
+
+# Display uninstaller usage information, optionally display error message.
+#
+# Arguments:
+# 1. Error message to display. Optional.
+display_uninstall_usage() {
+    t_display_usage__error="${1:-""}"
+
+    display "
+USAGE: $(basename "${0?}") [-a ANSWER_FILE] [-A ANSWER_FILE] [-d] [-h] [-l LOG_FILE] [-n] [-p] [-y]
+
+OPTIONS:
+    -a ANSWER_FILE
+        Read answers from file and quit with error if an answer is missing.
+    -A ANSWER_FILE
+        Read answers from file and prompt for input if an answer is missing.
+    -d
+        Also remove any databases during the uninstall.
+    -h
+        Display this help screen
+    -l LOG_FILE
+        Log commands and results to file.
+    -n
+        Run in 'noop' mode; show commands that would have been run
+        during installation without running them.
+    -p
+        Perform a 'purge', a full uninstall of Puppet Enterprise. Remove
+        all configuration files and user home directories in addition
+        to the standard uninstall. Puppet Enterprise databases and database
+        users will not be removed unless the -d flag is also passed.
+    -y
+        Assume yes to 'Are you sure?'
+"
+
+    if [ -n "${t_display_usage__error?}" ]; then
+        display_newline
+        display_failure "${t_display_usage__error?}"
+    else
+        display_footer
+        quit
+    fi
+}
+
+#...[ Handle process ]..................................................
+
+handle_process() {
+  case "${1?}" in
+    pe-puppet)
+      case "${PLATFORM_NAME}" in
+        debian|ubuntu|el|sles|solaris|cumulus)
+          PROC="-f '/opt/puppetlabs/puppet/bin/puppet([[:space:]]|$)'"
+          ;;
+        aix)
+          PROC="pe-puppet"
+          ;;
+        *)
+          return 0
+          ;;
+      esac
+    ;;
+    pe-puppet-agent)
+      if [ "$PLATFORM_NAME" = "debian" ] || [ "$PLATFORM_NAME" = "ubuntu" ]; then
+        PROC="-f '/opt/puppetlabs/puppet/bin/puppet([[:space:]]|$)'"
+      else
+        return 0
+      fi
+    ;;
+    puppetagent)
+      if [ "$PLATFORM_NAME" = "solaris" ]; then
+        PROC="-f '/opt/puppetlabs/puppet/bin/puppet([[:space:]]|$)'"
+      else
+        return 0
+      fi
+    ;;
+    puppet)
+      if [ "$PLATFORM_NAME" = "solaris" ]; then
+        PROC="-f '/opt/puppetlabs/puppet/bin/puppet([[:space:]]|$)'"
+      else
+        return 0
+      fi
+    ;;
+
+    pe-console-services)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/apps/console-services/console-services-release.jar"
+          ;;
+      esac
+    ;;
+
+    pe-nginx)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/bin/nginx"
+          ;;
+      esac
+    ;;
+
+    pe-activemq)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/apps/activemq/bin/activemq.jar"
+          ;;
+        esac
+    ;;
+
+    pe-mcollective)
+      if [ "${PLATFORM_NAME}" = "aix" ] ; then
+        PROC="pe-mcollective"
+      else
+        PROC="-f /opt/puppetlabs/puppet/bin/mcollectived"
+      fi
+    ;;
+
+    pe-puppet-dashboard-workers)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="delayed_job"
+          ;;
+        esac
+    ;;
+
+    pe-puppetdb)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/apps/puppetdb/puppetdb-release.jar"
+          ;;
+      esac
+    ;;
+
+    pe-postgresql)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/apps/postgresql/bin/postgres"
+          ;;
+      esac
+    ;;
+
+    pe-puppetserver)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/apps/puppetserver/puppet-server-release.jar"
+          ;;
+        esac
+        ;;
+
+    pe-orchestration-services)
+      case "${PLATFORM_NAME}" in
+        aix|solaris)
+          return 0
+          ;;
+        *)
+          PROC="-f /opt/puppetlabs/server/apps/orchestration-services/orchestration-services-release.jar"
+          ;;
+        esac
+        ;;
+    *)
+
+      # Unknown process
+      fail "Don't know how to kill process ${1?}"
+    ;;
+  esac
+
+  if [ "${1?}" = "pe-puppet-dashboard-workers" ]; then
+    # delayed_job is known to not respond well to service commands, so we'll try
+    # using the init script, but we'll probably need to kill them.
+    # delayed_job also doesn't appear in pgrep listings so `ps -ef` is also checked for delayed_job
+    if (! stop_process ${1?}) || [ -n "$(get_worker_pids)" ]; then
+      PID=$(get_worker_pids)
+      if [ -n "${PID}" ]; then
+        for sig in "TERM" "KILL"; do
+          run "kill -${sig} ${PID?}"
+          sleep 3
+          PID=$(get_worker_pids)
+          # Break out if there are no PIDs remaining to kill or if they are gone (aren't responding to signals, via kill -0)
+          # kill -0 means do the processes respond to signals. this is linux specific but delayed_job and pe-puppet-dashboard
+          # won't be on solaris, as solaris is agent only.
+          if [ -z "$PID" ] || ! (run "kill -0 ${PID} &> /dev/null"); then
+            break
+          fi
+        done
+      fi
+    fi
+  else
+    # If the process didn't stop successfully or if the pgrep reports processes still alive
+    # then it gets killed, either via TERM or KILL depending.
+    if (! stop_process ${1?}) || (${PLATFORM_PGREP} $PROC &> /dev/null); then
+      kill_process "$PROC"
+    fi
+  fi
+}
+
+#...[ Get Worker PIDS ]...............................................
+# Wrapper to make the script more readable. This should return the pids for the pe-puppet-dashboard workers.
+#
+
+get_worker_pids() {
+    t_PID="$(${PLATFORM_PGREP} $PROC) $(ps -fu puppet-dashboard &> /dev/null && ps -fu puppet-dashboard | $PLATFORM_EGREP 'delayed_job' | awk '{ print $2 }' | xargs)  $(ps -fu pe-puppet-dashboard &> /dev/null && ps -fu pe-puppet-dashboard | $PLATFORM_EGREP 'delayed_job' | awk '{ print $2 }' | xargs)"
+    r_PID=$(echo ${t_PID} | tr -d "\n")
+    echo ${r_PID}
+}
+
+#...[ Stop process ]..................................................
+# Platform specific: stops the given service using init.d for linux, svcadm for solaris, or stopsrc/rmssys for AIX
+# Passes the exit status for the stop up to the calling function
+
+stop_process() {
+  case "${PLATFORM_NAME?}" in
+    debian|ubuntu|sles|rhel|centos|amazon|cumulus|eos)
+      if [ -f /etc/init.d/$1 ]; then
+        run "/etc/init.d/${1?} stop"
+        return $?
+      elif [ -f /usr/lib/systemd/system/$1.service ]; then
+        run "/bin/systemctl stop ${1?}.service"
+        return $?
+      fi
+    ;;
+    solaris)
+      if /usr/bin/svcs -a | grep "${1?}" &>/dev/null ; then
+        if /usr/bin/svcs -a | grep "${1?}" | grep "online"  &>/dev/null; then
+          if ! run "/usr/sbin/svcadm disable -s svc:/network/${1?}" ; then
+            return 1
+          fi
+        fi
+        if ! run "/usr/sbin/svccfg delete svc:/network/${1?}" ; then
+          return 1
+        fi
+      fi
+    ;;
+    aix)
+      if /bin/lssrc -s "${1?}" &> /dev/null ; then
+        if /bin/lssrc -s "${1?}" | ${PLATFORM_EGREP} -q "active|stopping" ; then
+          if ! run "/bin/stopsrc -f -s ${1?}" ; then
+            return 1
+          fi
+          sleep 5
+        fi
+      fi
+    ;;
+    *)
+      # Unsupported platform
+      fail "Don't know how to stop process ${1?}"
+    ;;
+  esac
+}
+
+#...[ Kill process ]..................................................
+# Kills the process(es) found by the given pgrep arguments first by
+# signaling TERM and then by KILL. It bails out after term if the
+# processes have died.
+
+kill_process() {
+  PID=$(${PLATFORM_PGREP} ${1?} | xargs)
+  PIDS=$(echo ${PID} | tr -d "\n")
+  if [ -n "$PIDS" ]; then
+    for sig in "TERM" "KILL"; do
+      run "kill -${sig} ${PIDS?}"
+      sleep 5
+      PID=$(${PLATFORM_PGREP} ${1?} | xargs)
+      PIDS=$(echo ${PID} | tr -d "\n")
+      if [ -z "$PIDS" ]; then
+        break
+      fi
+    done
+  fi
+}
+
+#...[ Remove user ]....................................................
+# Removes the given user if it exists.
+
+remove_user() {
+  if getent passwd "${1?}" > /dev/null 2>&1; then
+    case "${PLATFORM_NAME?}" in
+      rhel | centos | ubuntu | debian | sles | solaris | amazon | cumulus | eos)
+        run "/usr/sbin/userdel ${1?}"
+      ;;
+      *)
+        fail "Unknown platform name, can't remove user"
+      ;;
+    esac
+  fi
+}
+
+#...[ Remove groups ]....................................................
+# Removes the given group if it exists.
+
+remove_group() {
+  if getent group "${1?}" > /dev/null 2>&1; then
+    case "${PLATFORM_NAME?}" in
+      rhel | centos | ubuntu | debian | sles | solaris | amazon | cumulus | eos)
+        run "/usr/sbin/groupdel ${1?}"
+      ;;
+      *)
+        fail "Unknown platform name, can't remove user"
+      ;;
+    esac
+  fi
+}
+
+#...[ Remove packages ]..................................................
+# Removes all of the pe-specific packages for each of the three package managers.
+
+remove_pe_packages() {
+  # NONPORTABLE
+  case "${PLATFORM_PACKAGING?}" in
+    rpm)
+      # First pass, standard uninstall
+      packages_to_remove="$(rpm -qa --queryformat '%{NAME}\n' | ${PLATFORM_EGREP?} ${t_pe_packages_to_check?} | xargs)"
+      command_to_remove_packages="rpm -e --allmatches ${packages_to_remove?}"
+      if [ -n "${packages_to_remove?}" ]; then
+        if [ "x${PLATFORM_NAME}" = "xaix" ]; then
+          run "${command_to_remove_packages?} 2>${WORKDIR?}/aix.rpm.errors"
+          remove_empty_directories
+        else
+          run "${command_to_remove_packages?}"
+        fi
+      fi
+
+      # Some of the preun scriptlets break standard uninstall, so anything left standing needs to cleaned up.
+      packages_to_remove="$(rpm -qa --queryformat '%{NAME}\n' | ${PLATFORM_EGREP?} ${t_pe_packages_to_check?} | xargs)"
+      command_to_remove_packages="rpm -e --noscripts --allmatches ${packages_to_remove?}"
+      if [ -n "${packages_to_remove?}" ]; then
+        if [ "x${PLATFORM_NAME}" = "xaix" ]; then
+          run "${command_to_remove_packages?} 2>${WORKDIR?}/aix.rpm.errors"
+          remove_empty_directories
+        else
+          run "${command_to_remove_packages?}"
+        fi
+      fi
+    ;;
+    dpkg)
+      packages_to_remove="$(dpkg-query --show --showformat '${Package}\n' | ${PLATFORM_EGREP?} ${t_pe_packages_to_check?} | xargs)"
+      if is_purge; then
+        command_to_remove_packages="dpkg -P ${packages_to_remove?}"
+      else
+        command_to_remove_packages="dpkg -r ${packages_to_remove?}"
+      fi
+
+      if [ -n "${packages_to_remove?}" ]; then
+        run "${command_to_remove_packages?}"
+      fi
+    ;;
+    pkgadd)
+      packages_to_remove="$(pkginfo | ${PLATFORM_EGREP?} "(PUP|puppet-agent)" | cut -d ' ' -f 2 | xargs)"
+      if is_noop; then
+        run "pkgrm -A -n ${packages_to_remove} &> /dev/null"
+      else
+        trap : SIGTERM
+        # Solaris 10 will not non-interactively uninstall packages with
+        # scripts without a modified admin file
+        run "tmpdir=$(/usr/bin/mktemp -t -d tmp.puppet-enterprise-uninstaller.XXXXXX)"
+        run "echo "action=nocheck" > ${tmpdir}/action.txt"
+        while [ -n "${packages_to_remove}" ]; do
+          packages_to_remove="$(pkginfo | ${PLATFORM_EGREP?} "(PUP|puppet-agent)" | cut -d ' ' -f 2 | xargs)"
+          for pkg in $packages_to_remove; do
+            run "pkgrm -a ${tmpdir}/action.txt -A -n ${pkg} &> /dev/null"
+          done
+        done
+        run "rm -rf ${tmpdir}"
+        trap - SIGTERM
+      fi
+    ;;
+    ips)
+      packages_to_remove="$(pkg list | ${PLATFORM_EGREP?} '^(system/management/pe-.*|puppet-agent) (puppetlabs.com)*' | cut -d' ' -f1 | xargs)"
+      command_to_remove_packages="pkg uninstall ${packages_to_remove}"
+      if [ -n "${packages_to_remove}" ] ; then
+        if is_purge ; then
+          run_suppress_output "${command_to_remove_packages}"
+        else
+          run_suppress_stdout "${command_to_remove_packages}"
+        fi
+      fi
+      ;;
+    *)
+      fail "Unknown platform packaging system, can't remove packages"
+    ;;
+  esac
+}
+
+# copies and timestamps an answers file to /tmp, if it exists and is readable.
+# echo the backup target back to the caller. Never fail on this though, this is not
+# a deal-breaker for the uninstall
+# Arguments:
+# 1. The answers file to back up
+backup_answers_file() {
+  t_answers_file="${1?}"
+  t_backup_target_file="$(basename ${1?}).`date '+%Y%m%dT%H%M%S'`.bak"
+  if [ -r "${t_answers_file}" ] ; then
+    run_suppress_output "cp -a ${t_answers_file} /tmp/${t_backup_target_file}" || true
+    run_suppress_output "chmod 600 /tmp/${t_backup_target_file}" || true
+  fi
+  echo "/tmp/${t_backup_target_file}"
+}
+
+#...[ Remove crons ]..........................................................
+
+remove_cron() {
+  # First remove the cron resources if they exist
+  for cron in $t_pe_cronjobs; do
+    if run "/opt/puppetlabs/puppet/bin/puppet resource cron | ${PLATFORM_EGREP?} ${cron?}" &> /dev/null; then
+      run "/opt/puppetlabs/puppet/bin/puppet resource cron '${cron?}' ensure=absent"
+    fi
+  done
+
+  # Next remove our job(s) in /etc/cron.d if it exists
+  for cron in $t_pe_crond_files; do
+    [ -f /etc/cron.d/${cron?} ] && run "rm -rf '/etc/cron.d/${cron?}'"
+  done
+}
+
+fail() {
+  echo "!! ERROR: ${1?}"
+  exit 1
+}
+
+status() {
+  echo "## ${1?}"
+}
+
+stop_pe_processes() {
+  # Abstraction layer. This calls down to stop or kill each of the PE services.
+  for process in $t_pe_processes; do
+    handle_process "${process?}"
+  done
+}
+
+is_purge() {
+  if [ y = "${q_pe_purge:-""}" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_remove_db() {
+  if [ y = "${q_pe_remove_db:-""}" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#===[ Setup ]===========================================================
+
+UNINSTALLER_DIR="$(dirname "${0?}")"
+
+# Check to see if sourcing the uninstaller
+
+if [ "puppet-enterprise-uninstaller" = "$(basename "${0?}")" ]; then
+    register_exception_handler
+    prepare_platform
+    prepare_user
+
+    IS_DEBUG=n
+    IS_NOOP=n
+    ANSWER_FILE_TO_LOAD=
+    IS_ANSWER_REQUIRED=n
+    WAS_DASHBOARD=n
+    LOGFILE=
+
+    if [ -z "$PLATFORM_EGREP" ]; then
+        if [ ${PLATFORM_NAME?} = "solaris" ]; then
+            PLATFORM_EGREP='egrep'
+        else
+            PLATFORM_EGREP='grep -E'
+        fi
+    fi
+
+    while getopts a:A:dhnpl:y option; do
+        case "$option" in
+            a)
+                ANSWER_FILE_TO_LOAD="${OPTARG?}"
+                IS_ANSWER_REQUIRED=y
+            ;;
+            A)
+                ANSWER_FILE_TO_LOAD="${OPTARG?}"
+                IS_ANSWER_REQUIRED=n
+            ;;
+            d)
+                q_pe_remove_db=y
+            ;;
+            h)
+                display_header
+                display_uninstall_usage
+            ;;
+            l)
+                LOGFILE="${OPTARG?}"
+            ;;
+            n)
+                IS_NOOP=y
+                IS_DEBUG=y
+            ;;
+            p)
+                q_pe_purge=y
+            ;;
+            y)
+                q_pe_uninstall=y
+            ;;
+            ?)
+                display_header
+                display_uninstall_usage "Illegal option specified"
+            ;;
+        esac
+    done
+
+    if ! is_use_answers_file; then
+        if has_logfile; then
+            display_header
+            display_usage "logfile option '-l' must be used with '-a' or '-A' options"
+        fi
+        if is_noop; then
+            display_header
+            display_usage "noop option '-n' must be used with '-a' or '-A' options"
+        fi
+    fi
+
+    # Load answers if specified:
+    if [ -n "${ANSWER_FILE_TO_LOAD?}" ]; then
+        load_answers "${ANSWER_FILE_TO_LOAD?}"
+    fi
+
+    if ! is_noop; then
+        prepare_log_file 'uninstall'
+    fi
+
+    # Setup
+    display_major_separator
+    display_newline
+    display_newline
+    if [ -f "$(installer_dir)/VERSION" ]; then
+        display "Puppet Enterprise v$(cat "$(installer_dir)/VERSION") Uninstaller"
+    else
+        display "Puppet Enterprise Uninstaller"
+    fi
+    display_newline
+
+    ask q_pe_remove_db 'Remove Puppet Enterprise database?' yN
+    ask q_pe_purge 'Purge all Puppet Enterprise configuration and files from system?' yN
+
+    # Display the flags passed
+    display_newline
+    display_major_separator
+    display "Options selected:"
+    if is_purge; then
+        display '* Purge: Full uninstall'
+    else
+        display '* Partial uninstall (leave most configuration files and homedirs)'
+    fi
+
+    if is_noop; then
+        display '* Noop Mode: Actions will be displayed instead of performed'
+    fi
+
+    display_newline
+    display_major_separator
+    display_newline
+
+    # Make sure this is what they want.
+    if is_package_installed 'pe-puppet-dashboard'; then
+        WAS_DASHBOARD=y
+        if ! is_remove_db; then
+            display "*** Warning: The uninstall will remove all console database configuration files, but not the database itself."
+        else
+            display "*** Warning: the console databases will be completely removed."
+        fi
+
+        display_newline
+        display_major_separator
+        display_newline
+    fi
+
+    # Make sure this is what they want.
+    if is_package_installed 'pe-puppetdb'; then
+        if ! is_remove_db; then
+            display "*** Warning: The uninstall will remove all puppetdb database configuration files, but not the database itself."
+        else
+            display "*** Warning: the puppetdb databases will be completely removed."
+        fi
+
+        display_newline
+        display_major_separator
+        display_newline
+    fi
+
+    ask q_pe_uninstall 'Uninstall Puppet Enterprise?' yN
+
+    if [ ! y = "${q_pe_uninstall?}" ]; then
+        display_newline
+        display_major_separator
+        display_newline
+        display "Exiting uninstaller"
+        display_newline
+        display_major_separator
+        quit
+    fi
+
+    display_newline
+    display_major_separator
+    display_newline
+
+    # Remove PE cronjobs
+    status "Removing PE cronjobs..."
+    remove_cron
+
+    # Remove PE packages
+    # First stop the processes
+    status "Stopping PE processes..."
+    stop_pe_processes
+
+    # Then remove the packages
+    status "Removing PE packages..."
+    remove_pe_packages
+
+    # Remove PE users and groups
+
+    status "Removing PE users and groups..."
+    # First users
+    for user in $t_pe_users_and_groups; do
+        remove_user "${user?}"
+    done
+
+    # Then groups
+    for group in $t_pe_users_and_groups; do
+        remove_group "${group?}"
+    done
+
+    # Remove simplified agent repo files
+    case "${PLATFORM_PACKAGING?}" in
+        rpm)
+            case "${PLATFORM_NAME?}" in
+                sles)
+                  if [ "10" != "${PLATFORM_RELEASE?}" ]; then
+                    if zypper service-list | grep puppet-enterprise; then
+                        run "zypper service-delete puppet-enterprise"
+                    fi
+                  fi
+                  ;;
+                *)
+                    t_el_4_regex="el-4-(i386|x86_64)"
+                    if [[ ! "$PLATFORM_TAG" =~ ${t_el_4_regex?} ]] ; then
+                        if [ -e "/etc/yum.repos.d/pe_repo.repo" ]; then
+                            run "yum clean all --disablerepo='*' --enablerepo=puppetlabs-pepackages"
+                            run "rm -f /etc/yum.repos.d/pe_repo.repo"
+                        fi
+                    fi
+                    ;;
+            esac
+            ;;
+        dpkg)
+            if [ -e "/etc/apt/sources.list.d/puppet-enterprise-installer.list" -o -e "/etc/apt/apt.conf.d/90pe-repo" ]; then
+                run "rm -f /etc/apt/sources.list.d/puppet-enterprise-installer.list"
+                run "rm -f /etc/apt/apt.conf.d/90pe-repo"
+                run "apt-get update -qq"
+            fi
+            ;;
+        *)
+            # Don't remove anything
+            ;;
+    esac
+
+    t_sol_11_regex="solaris-11-(i386|sparc)"
+    if [[ "${PLATFORM_TAG}" =~ $t_sol_11_regex ]] ; then
+        if [ -f "/etc/puppetlabs/installer/solaris.repo/pkg5.repository" ] ; then
+            remove_package_repo
+        fi
+        if run_suppress_output "pkg publisher puppetlabs.com" ; then
+          # First, try to remove the publisher altogether
+          if ! run_suppress_output "pkg unset-publisher puppetlabs.com" ; then
+            # If that doesn't work, we're in a non-global zone and the
+            # publisher is from a global zone. As such, just remove any
+            # references to the non-global zone uri.
+            run_suppress_output "pkg set-publisher -G '*' puppetlabs.com"
+          fi
+        fi
+    fi
+
+    # Remove PE dirs and files
+
+    status "Removing PE directories and files..."
+    if is_purge; then
+        # If this is a -d -p uninstall, we're going to blow away any record of the
+        # database password, leaving behind an inaccessible server. Here we
+        # back it up, if it exists
+        t_pe_db_answers_file_backup=$(backup_answers_file "${t_pe_db_answers_file}")
+        t_dirs_files_to_delete="$t_pe_uninstall_dirs $t_pe_purge_dirs $t_pe_files"
+    else
+        t_dirs_files_to_delete="$t_pe_uninstall_dirs"
+    fi
+
+    for entry in $t_dirs_files_to_delete; do
+        if [ -n "$entry" -a -e "$entry" ]; then
+            run "rm -rf '${entry}'"
+        fi
+    done
+
+    status "Removing PE database files..."
+    if is_remove_db; then
+        for entry in $t_pe_uninstall_db_dirs; do
+            if [ -n "$entry" -a -e "$entry" ]; then
+                run "rm -rf '${entry}'"
+            fi
+        done
+    fi
+
+    # Remove Puppet Labs GPG key unless the puppet-enterprise-release package
+    # is installed, which means they're using the key for FOSS as well
+    if is_purge && ! is_package_installed "puppetlabs-release" ; then
+      case "${PLATFORM_PACKAGING?}" in
+        rpm)
+          t_legacy_key_id="4bd6ec30"
+          t_key_id="EF8D349F"
+          if run_suppress_output 'rpm -qi gpg-pubkey-${t_legacy_key_id}' ; then
+              status 'Removing Puppet Labs rpm GPG key...'
+              run_suppress_output 'rpm -e gpg-pubkey-${t_legacy_key_id}'
+          fi
+          if run_suppress_output 'rpm -qi gpg-pubkey-${t_key_id}' ; then
+              status 'Removing Puppet, Inc. rpm GPG key...'
+              run_suppress_output 'rpm -e gpg-pubkey-${t_key_id}'
+          fi
+          ;;
+        dpkg)
+          t_legacy_key_id="4BD6EC30"
+          t_key_id="EF8D349F"
+          if run_suppress_output 'apt-key list | egrep ${t_legacy_key_id}' ; then
+              status 'Removing Puppet Labs legacy apt GPG key...'
+              run_suppress_output 'apt-key del ${t_legacy_key_id}'
+          fi
+          if run_suppress_output 'apt-key list | egrep ${t_key_id}' ; then
+              status 'Removing Puppet Labs apt GPG key...'
+              run_suppress_output 'apt-key del ${t_key_id}'
+          fi
+          ;;
+        *)
+          # Not rpm or dpkg? No keys
+          ;;
+        esac
+    fi
+
+    # Remove PE symlinks
+
+    status "Removing PE symlinks..."
+    # Call me paranoid, but we're going to make absolutely sure PLATFORM_SYMLINK_TARGET
+    # is set before rm -f'ing anything.
+    PLATFORM_SYMLINK_TARGET="${PLATFORM_SYMLINK_TARGET:="/usr/local/bin"}"
+    for link in $t_pe_symlinks; do
+        if [ -L "${PLATFORM_SYMLINK_TARGET}/$link" ] ; then
+          run "rm -f '${PLATFORM_SYMLINK_TARGET?}/$link'"
+        fi
+    done
+
+
+    # Some package cleanup
+
+    case "${PLATFORM_NAME?}" in
+        ubuntu|debian|cumulus)
+            status "Removing stale dpkg state overrides..."
+            sed -i '/^pe-puppet[[:space:]]/d' /var/lib/dpkg/statoverride
+        ;;
+    esac
+
+    # Prompt the user to remove any certificates from the master if they want to reinstall this node
+    display_newline
+    display_major_separator
+    display_newline
+
+    display "In order to successfully reinstall the agent role on this node, you will need to remove its certificate from the Puppet master."
+    display "To do that, run \"puppet cert clean <node name>\" on the Puppet master."
+    display_newline
+
+    if [ y = "${WAS_DASHBOARD}" ] ; then
+      display "In order to successfully reinstall the console role, you will also need to remove the \"pe-internal-dashboard\" certificate."
+      display "To do that, run \"puppet cert clean pe-internal-dashboard\" on the Puppet master."
+      display_newline
+    fi
+
+    display_major_separator
+    display_newline
+
+    #===[ Teardown ]========================================================
+    unregister_exception_handler
+    remove_workdir
+    status "Done!"
+fi
+#===[ Fin ]=============================================================

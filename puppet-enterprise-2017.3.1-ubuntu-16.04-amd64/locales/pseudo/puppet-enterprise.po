@@ -1,0 +1,435 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-09 14:21+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: puppet-enterprise-installer:203
+msgid "Running command"
+msgstr "Rúññïñϱ çô₥₥áñδ"
+
+#: puppet-enterprise-installer:354
+msgid "Puppet Enterprise Installer"
+msgstr "Ƥŭƥƥḗŧ Ḗƞŧḗřƥřīşḗ Īƞşŧȧŀŀḗř"
+
+#: puppet-enterprise-installer:367
+msgid "OPTIONS:"
+msgstr "ǾƤŦĪǾȠŞ:"
+
+#: puppet-enterprise-installer:370
+msgid "Use pe.conf at <PATH_TO_FILE>."
+msgstr "Ŭşḗ ƥḗ.ƈǿƞƒ ȧŧ <PATH_TO_FILE>."
+
+#: puppet-enterprise-installer:372
+#, sh-format
+msgid ""
+"If you don't use this flag on installation, the installer will create a pe."
+"conf file for you and open in your EDITOR (${EDITOR})."
+msgstr ""
+"Īƒ ẏǿŭ ḓǿƞ'ŧ ŭşḗ ŧħīş ƒŀȧɠ ǿƞ īƞşŧȧŀŀȧŧīǿƞ, ŧħḗ īƞşŧȧŀŀḗř ẇīŀŀ ƈřḗȧŧḗ ȧ ƥḗ."
+"ƈǿƞƒ ƒīŀḗ ƒǿř ẏǿŭ ȧƞḓ ǿƥḗƞ īƞ ẏǿŭř ḖḒĪŦǾŘ (${EDITOR})."
+
+#: puppet-enterprise-installer:374
+#, sh-format
+msgid ""
+"If you don't provide this flag on upgrade, the installer will attempt to use "
+"your pre-existing pe.conf, or if that file can't be found, it will create a "
+"pe.conf file and open it in your EDITOR (${EDITOR})."
+msgstr ""
+"Īƒ ẏǿŭ ḓǿƞ'ŧ ƥřǿṽīḓḗ ŧħīş ƒŀȧɠ ǿƞ ŭƥɠřȧḓḗ, ŧħḗ īƞşŧȧŀŀḗř ẇīŀŀ ȧŧŧḗḿƥŧ ŧǿ ŭşḗ "
+"ẏǿŭř ƥřḗ-ḗẋīşŧīƞɠ ƥḗ.ƈǿƞƒ, ǿř īƒ ŧħȧŧ ƒīŀḗ ƈȧƞ'ŧ ƀḗ ƒǿŭƞḓ, īŧ ẇīŀŀ ƈřḗȧŧḗ ȧ "
+"ƥḗ.ƈǿƞƒ ƒīŀḗ ȧƞḓ ǿƥḗƞ īŧ īƞ ẏǿŭř ḖḒĪŦǾŘ (${EDITOR})."
+
+#: puppet-enterprise-installer:376
+msgid ""
+"If you have a pre-existing pe.conf, the installer will overwrite it if you "
+"use this flag."
+msgstr ""
+"Īƒ ẏǿŭ ħȧṽḗ ȧ ƥřḗ-ḗẋīşŧīƞɠ ƥḗ.ƈǿƞƒ, ŧħḗ īƞşŧȧŀŀḗř ẇīŀŀ ǿṽḗřẇřīŧḗ īŧ īƒ ẏǿŭ "
+"ŭşḗ ŧħīş ƒŀȧɠ."
+
+#: puppet-enterprise-installer:377
+msgid ""
+"Note that installer will create a backup of the pre-existing pe.conf before "
+"overwriting it."
+msgstr ""
+"Ƞǿŧḗ ŧħȧŧ īƞşŧȧŀŀḗř ẇīŀŀ ƈřḗȧŧḗ ȧ ƀȧƈķŭƥ ǿƒ ŧħḗ ƥřḗ-ḗẋīşŧīƞɠ ƥḗ.ƈǿƞƒ ƀḗƒǿřḗ "
+"ǿṽḗřẇřīŧīƞɠ īŧ."
+
+#: puppet-enterprise-installer:379
+msgid "Display debugging information."
+msgstr "Ḓīşƥŀȧẏ ḓḗƀŭɠɠīƞɠ īƞƒǿřḿȧŧīǿƞ."
+
+#: puppet-enterprise-installer:381
+msgid "Display this help."
+msgstr "Ḓīşƥŀȧẏ ŧħīş ħḗŀƥ."
+
+#: puppet-enterprise-installer:383
+msgid "Run in quiet mode; the installation process is not displayed."
+msgstr "Řŭƞ īƞ ɋŭīḗŧ ḿǿḓḗ; ŧħḗ īƞşŧȧŀŀȧŧīǿƞ ƥřǿƈḗşş īş ƞǿŧ ḓīşƥŀȧẏḗḓ."
+
+#: puppet-enterprise-installer:385
+msgid "Display very verbose debugging information."
+msgstr "Ḓīşƥŀȧẏ ṽḗřẏ ṽḗřƀǿşḗ ḓḗƀŭɠɠīƞɠ īƞƒǿřḿȧŧīǿƞ."
+
+#: puppet-enterprise-installer:387
+#, sh-format
+msgid ""
+"Assume yes/default and bypass any prompts for user input or file editing "
+"using EDITOR (${EDITOR})."
+msgstr ""
+"Ȧşşŭḿḗ ẏḗş/default ȧƞḓ ƀẏƥȧşş ȧƞẏ ƥřǿḿƥŧş ƒǿř ŭşḗř īƞƥŭŧ ǿř ƒīŀḗ ḗḓīŧīƞɠ "
+"ŭşīƞɠ ḖḒĪŦǾŘ (${EDITOR})."
+
+#: puppet-enterprise-installer:388
+msgid "Ensure that your pe.conf file is valid before using this flag."
+msgstr "Ḗƞşŭřḗ ŧħȧŧ ẏǿŭř ƥḗ.ƈǿƞƒ ƒīŀḗ īş ṽȧŀīḓ ƀḗƒǿřḗ ŭşīƞɠ ŧħīş ƒŀȧɠ."
+
+#: puppet-enterprise-installer:390
+msgid "Prepare the system for future install."
+msgstr "Ƥřḗƥȧřḗ ŧħḗ şẏşŧḗḿ ƒǿř ƒŭŧŭřḗ īƞşŧȧŀŀ."
+
+#: puppet-enterprise-installer:391
+msgid ""
+"Will install packages and modules, but not run the final configure command."
+msgstr ""
+"Ẇīŀŀ īƞşŧȧŀŀ ƥȧƈķȧɠḗş ȧƞḓ ḿǿḓŭŀḗş, ƀŭŧ ƞǿŧ řŭƞ ŧħḗ ƒīƞȧŀ ƈǿƞƒīɠŭřḗ ƈǿḿḿȧƞḓ."
+
+#: puppet-enterprise-installer:429
+#, sh-format
+msgid "${SCRIPT_NAME} must be run as root"
+msgstr "${SCRIPT_NAME} ḿŭşŧ ƀḗ řŭƞ ȧş řǿǿŧ"
+
+#: puppet-enterprise-installer:478
+#, sh-format
+msgid "We couldn't find a PE config file at ${CONF_FILE_PATH}."
+msgstr "Ẇḗ ƈǿŭŀḓƞ'ŧ ƒīƞḓ ȧ ƤḖ ƈǿƞƒīɠ ƒīŀḗ ȧŧ ${CONF_FILE_PATH}."
+
+#: puppet-enterprise-installer:479
+msgid "Verify that a pe.conf exists at the path you provided."
+msgstr "Ṽḗřīƒẏ ŧħȧŧ ȧ ƥḗ.ƈǿƞƒ ḗẋīşŧş ȧŧ ŧħḗ ƥȧŧħ ẏǿŭ ƥřǿṽīḓḗḓ."
+
+#: puppet-enterprise-installer:522
+#, sh-format
+msgid ""
+"The -y flag cannot be used without the -c flag if a valid pe.conf cannot be "
+"found at ${ENTERPRISE_CONF_PATH}."
+msgstr ""
+"Ŧħḗ -y ƒŀȧɠ ƈȧƞƞǿŧ ƀḗ ŭşḗḓ ẇīŧħǿŭŧ ŧħḗ -c ƒŀȧɠ īƒ ȧ ṽȧŀīḓ ƥḗ.ƈǿƞƒ ƈȧƞƞǿŧ ƀḗ "
+"ƒǿŭƞḓ ȧŧ ${ENTERPRISE_CONF_PATH}."
+
+#: puppet-enterprise-installer:571
+msgid "FATAL: user_confirmation() called without an argument"
+msgstr "ƑȦŦȦĿ: ŭşḗř_ƈǿƞƒīřḿȧŧīǿƞ() ƈȧŀŀḗḓ ẇīŧħǿŭŧ ȧƞ ȧřɠŭḿḗƞŧ"
+
+#: puppet-enterprise-installer:625
+#, sh-format
+msgid ""
+"Proceed with upgrade/repair of ${test_existing_pe_version} using the pe.conf "
+"at ${CONF_FILE_PATH}?"
+msgstr ""
+"Ƥřǿƈḗḗḓ ẇīŧħ ŭƥɠřȧḓḗ/repair ǿƒ ${test_existing_pe_version} ŭşīƞɠ ŧħḗ ƥḗ.ƈǿƞƒ "
+"ȧŧ ${CONF_FILE_PATH}?"
+
+#: puppet-enterprise-installer:627
+#, sh-format
+msgid "Proceed with installation using the pe.conf at ${CONF_FILE_PATH}?"
+msgstr "Ƥřǿƈḗḗḓ ẇīŧħ īƞşŧȧŀŀȧŧīǿƞ ŭşīƞɠ ŧħḗ ƥḗ.ƈǿƞƒ ȧŧ ${CONF_FILE_PATH}?"
+
+#: puppet-enterprise-installer:642
+#, sh-format
+msgid "Upgrades from PE ${installed_version} are not supported."
+msgstr "Ŭƥɠřȧḓḗş ƒřǿḿ ƤḖ ${installed_version} ȧřḗ ƞǿŧ şŭƥƥǿřŧḗḓ."
+
+#: puppet-enterprise-installer:643
+msgid ""
+"Review the 2016.2 migration documentation for instructions on moving to this "
+"version of PE."
+msgstr ""
+"Řḗṽīḗẇ ŧħḗ 2016.2 ḿīɠřȧŧīǿƞ ḓǿƈŭḿḗƞŧȧŧīǿƞ ƒǿř īƞşŧřŭƈŧīǿƞş ǿƞ ḿǿṽīƞɠ ŧǿ ŧħīş "
+"ṽḗřşīǿƞ ǿƒ ƤḖ."
+
+#: puppet-enterprise-installer:651
+#, sh-format
+msgid ""
+"We've detected a modified auth.conf file in a format that is no longer "
+"compatible with Puppet Enterprise ${pe_version_var}."
+msgstr ""
+"Ẇḗ'ṽḗ ḓḗŧḗƈŧḗḓ ȧ ḿǿḓīƒīḗḓ ȧŭŧħ.ƈǿƞƒ ƒīŀḗ īƞ ȧ ƒǿřḿȧŧ ŧħȧŧ īş ƞǿ ŀǿƞɠḗř "
+"ƈǿḿƥȧŧīƀŀḗ ẇīŧħ Ƥŭƥƥḗŧ Ḗƞŧḗřƥřīşḗ ${pe_version_var}."
+
+#: puppet-enterprise-installer:654
+msgid ""
+"After upgrading, migrate your legacy auth.conf (and any customizations) to "
+"the new file format."
+msgstr ""
+"Ȧƒŧḗř ŭƥɠřȧḓīƞɠ, ḿīɠřȧŧḗ ẏǿŭř ŀḗɠȧƈẏ ȧŭŧħ.ƈǿƞƒ (ȧƞḓ ȧƞẏ ƈŭşŧǿḿīzȧŧīǿƞş) ŧǿ "
+"ŧħḗ ƞḗẇ ƒīŀḗ ƒǿřḿȧŧ."
+
+#: puppet-enterprise-installer:655 puppet-enterprise-installer:664
+msgid ""
+"Refer to the auth.conf migration documentation: https://docs.puppet.com/"
+"puppetserver/latest/config_file_auth_migration.html"
+msgstr ""
+"Řḗƒḗř ŧǿ ŧħḗ ȧŭŧħ.ƈǿƞƒ ḿīɠřȧŧīǿƞ ḓǿƈŭḿḗƞŧȧŧīǿƞ: https://docs.puppet.com/"
+"puppetserver/latest/config_file_auth_migration.html"
+
+#: puppet-enterprise-installer:656
+msgid "Continue with the upgrade and migrate auth.conf later?"
+msgstr "Ƈǿƞŧīƞŭḗ ẇīŧħ ŧħḗ ŭƥɠřȧḓḗ ȧƞḓ ḿīɠřȧŧḗ ȧŭŧħ.ƈǿƞƒ ŀȧŧḗř?"
+
+#: puppet-enterprise-installer:663
+msgid ""
+"Before upgrading, migrate your legacy auth.conf (and any customizations) to "
+"the new file format."
+msgstr ""
+"Ɓḗƒǿřḗ ŭƥɠřȧḓīƞɠ, ḿīɠřȧŧḗ ẏǿŭř ŀḗɠȧƈẏ ȧŭŧħ.ƈǿƞƒ (ȧƞḓ ȧƞẏ ƈŭşŧǿḿīzȧŧīǿƞş) ŧǿ "
+"ŧħḗ ƞḗẇ ƒīŀḗ ƒǿřḿȧŧ."
+
+#: puppet-enterprise-installer:665
+msgid ""
+"Would you like to quit and migrate your existing auth.conf file? Answer no "
+"if you have already completed this step."
+msgstr ""
+"Ẇǿŭŀḓ ẏǿŭ ŀīķḗ ŧǿ ɋŭīŧ ȧƞḓ ḿīɠřȧŧḗ ẏǿŭř ḗẋīşŧīƞɠ ȧŭŧħ.ƈǿƞƒ ƒīŀḗ? Ȧƞşẇḗř ƞǿ "
+"īƒ ẏǿŭ ħȧṽḗ ȧŀřḗȧḓẏ ƈǿḿƥŀḗŧḗḓ ŧħīş şŧḗƥ."
+
+#: puppet-enterprise-installer:732
+#, sh-format
+msgid ""
+"We've detected an existing Puppet Enterprise ${existing_pe_version_var} "
+"install."
+msgstr ""
+"Ẇḗ'ṽḗ ḓḗŧḗƈŧḗḓ ȧƞ ḗẋīşŧīƞɠ Ƥŭƥƥḗŧ Ḗƞŧḗřƥřīşḗ ${existing_pe_version_var} "
+"īƞşŧȧŀŀ."
+
+#: puppet-enterprise-installer:733
+msgid "Would you like to proceed with text-mode upgrade/repair?"
+msgstr "Ẇǿŭŀḓ ẏǿŭ ŀīķḗ ŧǿ ƥřǿƈḗḗḓ ẇīŧħ ŧḗẋŧ-ḿǿḓḗ ŭƥɠřȧḓḗ/repair?"
+
+#: puppet-enterprise-installer:742
+msgid "Puppet Enterprise offers two different methods of installation."
+msgstr "Ƥŭƥƥḗŧ Ḗƞŧḗřƥřīşḗ ǿƒƒḗřş ŧẇǿ ḓīƒƒḗřḗƞŧ ḿḗŧħǿḓş ǿƒ īƞşŧȧŀŀȧŧīǿƞ."
+
+#: puppet-enterprise-installer:744
+msgid "Guided install"
+msgstr "Ɠŭīḓḗḓ īƞşŧȧŀŀ"
+
+#: puppet-enterprise-installer:746
+msgid "Recommended for beginners."
+msgstr "Řḗƈǿḿḿḗƞḓḗḓ ƒǿř ƀḗɠīƞƞḗřş."
+
+#: puppet-enterprise-installer:747
+msgid ""
+"This method will install and configure a temporary webserver to walk you "
+"through the various configuration options."
+msgstr ""
+"Ŧħīş ḿḗŧħǿḓ ẇīŀŀ īƞşŧȧŀŀ ȧƞḓ ƈǿƞƒīɠŭřḗ ȧ ŧḗḿƥǿřȧřẏ ẇḗƀşḗřṽḗř ŧǿ ẇȧŀķ ẏǿŭ "
+"ŧħřǿŭɠħ ŧħḗ ṽȧřīǿŭş ƈǿƞƒīɠŭřȧŧīǿƞ ǿƥŧīǿƞş."
+
+#: puppet-enterprise-installer:749
+msgid ""
+"NOTE: This method requires you to be able to access port 3000 on this "
+"machine from your desktop web browser."
+msgstr ""
+"ȠǾŦḖ: Ŧħīş ḿḗŧħǿḓ řḗɋŭīřḗş ẏǿŭ ŧǿ ƀḗ ȧƀŀḗ ŧǿ ȧƈƈḗşş ƥǿřŧ 3000 ǿƞ ŧħīş "
+"ḿȧƈħīƞḗ ƒřǿḿ ẏǿŭř ḓḗşķŧǿƥ ẇḗƀ ƀřǿẇşḗř."
+
+#: puppet-enterprise-installer:751
+msgid "Text-mode"
+msgstr "Ŧḗẋŧ-ḿǿḓḗ"
+
+#: puppet-enterprise-installer:753
+msgid "Recommended for advanced users."
+msgstr "Řḗƈǿḿḿḗƞḓḗḓ ƒǿř ȧḓṽȧƞƈḗḓ ŭşḗřş."
+
+#: puppet-enterprise-installer:754
+#, sh-format
+msgid ""
+"This method will open your EDITOR (${EDITOR}) with a PE config file (pe."
+"conf) for you to edit before you proceed with installation."
+msgstr ""
+"Ŧħīş ḿḗŧħǿḓ ẇīŀŀ ǿƥḗƞ ẏǿŭř ḖḒĪŦǾŘ (${EDITOR}) ẇīŧħ ȧ ƤḖ ƈǿƞƒīɠ ƒīŀḗ (ƥḗ."
+"ƈǿƞƒ) ƒǿř ẏǿŭ ŧǿ ḗḓīŧ ƀḗƒǿřḗ ẏǿŭ ƥřǿƈḗḗḓ ẇīŧħ īƞşŧȧŀŀȧŧīǿƞ."
+
+#: puppet-enterprise-installer:756
+msgid ""
+"The pe.conf file is a HOCON formatted file that declares parameters and "
+"values needed to install and configure PE."
+msgstr ""
+"Ŧħḗ ƥḗ.ƈǿƞƒ ƒīŀḗ īş ȧ ĦǾƇǾȠ ƒǿřḿȧŧŧḗḓ ƒīŀḗ ŧħȧŧ ḓḗƈŀȧřḗş ƥȧřȧḿḗŧḗřş ȧƞḓ "
+"ṽȧŀŭḗş ƞḗḗḓḗḓ ŧǿ īƞşŧȧŀŀ ȧƞḓ ƈǿƞƒīɠŭřḗ ƤḖ."
+
+#: puppet-enterprise-installer:757
+msgid "We recommend that you review it carefully before proceeding."
+msgstr "Ẇḗ řḗƈǿḿḿḗƞḓ ŧħȧŧ ẏǿŭ řḗṽīḗẇ īŧ ƈȧřḗƒŭŀŀẏ ƀḗƒǿřḗ ƥřǿƈḗḗḓīƞɠ."
+
+#: puppet-enterprise-installer:761
+msgid "How to proceed?"
+msgstr "Ħǿẇ ŧǿ ƥřǿƈḗḗḓ?"
+
+#: puppet-enterprise-installer:777
+msgid "We're preparing the Web Installer..."
+msgstr "Ẇḗ'řḗ ƥřḗƥȧřīƞɠ ŧħḗ Ẇḗƀ Īƞşŧȧŀŀḗř..."
+
+#: puppet-enterprise-installer:788
+#, sh-format
+msgid ""
+"Go to https://${platform_hostname}:3000 in your browser to continue "
+"installation."
+msgstr ""
+"Ɠǿ ŧǿ ħŧŧƥş://${platform_hostname}:3000 īƞ ẏǿŭř ƀřǿẇşḗř ŧǿ ƈǿƞŧīƞŭḗ "
+"īƞşŧȧŀŀȧŧīǿƞ."
+
+#: puppet-enterprise-installer:789
+msgid ""
+"Be sure to use 'https://' and that port 3000 is reachable through the "
+"firewall."
+msgstr ""
+"Ɓḗ şŭřḗ ŧǿ ŭşḗ 'ħŧŧƥş://' ȧƞḓ ŧħȧŧ ƥǿřŧ 3000 īş řḗȧƈħȧƀŀḗ ŧħřǿŭɠħ ŧħḗ "
+"ƒīřḗẇȧŀŀ."
+
+#: puppet-enterprise-installer:801
+#, sh-format
+msgid "We've found a pe.conf file at ${ENTERPRISE_CONF_PATH}."
+msgstr "Ẇḗ'ṽḗ ƒǿŭƞḓ ȧ ƥḗ.ƈǿƞƒ ƒīŀḗ ȧŧ ${ENTERPRISE_CONF_PATH}."
+
+#: puppet-enterprise-installer:813
+#, sh-format
+msgid ""
+"We've found a pe.conf file at ${CONF_FILE_PATH}. Do you want to proceed "
+"using this file? Answer Y to proceed with configuration. Answer N to open "
+"the file in your EDITOR (${EDITOR})."
+msgstr ""
+"Ẇḗ'ṽḗ ƒǿŭƞḓ ȧ ƥḗ.ƈǿƞƒ ƒīŀḗ ȧŧ ${CONF_FILE_PATH}. Ḓǿ ẏǿŭ ẇȧƞŧ ŧǿ ƥřǿƈḗḗḓ "
+"ŭşīƞɠ ŧħīş ƒīŀḗ? Ȧƞşẇḗř Ẏ ŧǿ ƥřǿƈḗḗḓ ẇīŧħ ƈǿƞƒīɠŭřȧŧīǿƞ. Ȧƞşẇḗř Ƞ ŧǿ ǿƥḗƞ "
+"ŧħḗ ƒīŀḗ īƞ ẏǿŭř ḖḒĪŦǾŘ (${EDITOR})."
+
+#: puppet-enterprise-installer:816
+#, sh-format
+msgid "We'll proceed using pe.conf found at ${CONF_FILE_PATH}..."
+msgstr "Ẇḗ'ŀŀ ƥřǿƈḗḗḓ ŭşīƞɠ ƥḗ.ƈǿƞƒ ƒǿŭƞḓ ȧŧ ${CONF_FILE_PATH}..."
+
+#: puppet-enterprise-installer:821
+#, sh-format
+msgid "We are creating a new pe.conf file at ${CONF_FILE_PATH}..."
+msgstr "Ẇḗ ȧřḗ ƈřḗȧŧīƞɠ ȧ ƞḗẇ ƥḗ.ƈǿƞƒ ƒīŀḗ ȧŧ ${CONF_FILE_PATH}..."
+
+#: puppet-enterprise-installer:834
+#, sh-format
+msgid "We're opening ${CONF_FILE_PATH} in ${EDITOR}..."
+msgstr "Ẇḗ'řḗ ǿƥḗƞīƞɠ ${CONF_FILE_PATH} īƞ ${EDITOR}..."
+
+#: puppet-enterprise-installer:836
+#, sh-format
+msgid "You edited ${CONF_FILE_PATH} in ${EDITOR}."
+msgstr "Ẏǿŭ ḗḓīŧḗḓ ${CONF_FILE_PATH} īƞ ${EDITOR}."
+
+#: puppet-enterprise-installer:846
+#, sh-format
+msgid "We're checking if ${CONF_FILE_PATH} contains valid HOCON syntax..."
+msgstr "Ẇḗ'řḗ ƈħḗƈķīƞɠ īƒ ${CONF_FILE_PATH} ƈǿƞŧȧīƞş ṽȧŀīḓ ĦǾƇǾȠ şẏƞŧȧẋ..."
+
+#: puppet-enterprise-installer:865
+#, sh-format
+msgid "Your pe.conf file at ${CONF_FILE_PATH} contains errors."
+msgstr "Ẏǿŭř ƥḗ.ƈǿƞƒ ƒīŀḗ ȧŧ ${CONF_FILE_PATH} ƈǿƞŧȧīƞş ḗřřǿřş."
+
+#: puppet-enterprise-installer:866
+msgid "Check your pe.conf file for errors and try re-running the installer."
+msgstr "Ƈħḗƈķ ẏǿŭř ƥḗ.ƈǿƞƒ ƒīŀḗ ƒǿř ḗřřǿřş ȧƞḓ ŧřẏ řḗ-řŭƞƞīƞɠ ŧħḗ īƞşŧȧŀŀḗř."
+
+#: puppet-enterprise-installer:902
+msgid ""
+"Unknown Platform. Visit https://docs.puppetlabs.com/pe/latest/"
+"install_system_requirements.html"
+msgstr ""
+"Ŭƞķƞǿẇƞ Ƥŀȧŧƒǿřḿ. Ṽīşīŧ https://docs.puppetlabs.com/pe/latest/"
+"install_system_requirements.html"
+
+#: puppet-enterprise-installer:947
+msgid "We're installing the Puppet Agent..."
+msgstr "Ẇḗ'řḗ īƞşŧȧŀŀīƞɠ ŧħḗ Ƥŭƥƥḗŧ Ȧɠḗƞŧ..."
+
+#: puppet-enterprise-installer:1016
+#, sh-format
+msgid "We're configuring PE using ${CONF_FILE_PATH}..."
+msgstr "Ẇḗ'řḗ ƈǿƞƒīɠŭřīƞɠ ƤḖ ŭşīƞɠ ${CONF_FILE_PATH}..."
+
+#: puppet-enterprise-installer:1072
+msgid "* waiting for an agent run to complete..."
+msgstr "* ẇȧīŧīƞɠ ƒǿř ȧƞ ȧɠḗƞŧ řŭƞ ŧǿ ƈǿḿƥŀḗŧḗ..."
+
+#: puppet-enterprise-installer:1090
+msgid "Puppet Enterprise configuration complete!"
+msgstr "Ƥŭƥƥḗŧ Ḗƞŧḗřƥřīşḗ ƈǿƞƒīɠŭřȧŧīǿƞ ƈǿḿƥŀḗŧḗ!"
+
+#: puppet-enterprise-installer:1091
+#, sh-format
+msgid ""
+"Documentation: https://docs.puppet.com/pe/${pe_link_version_var}/index.html"
+msgstr ""
+"Ḓǿƈŭḿḗƞŧȧŧīǿƞ: ħŧŧƥş://docs.puppet.com/pe/${pe_link_version_var}/index.html"
+
+#: puppet-enterprise-installer:1092
+#, sh-format
+msgid ""
+"Release notes: https://docs.puppet.com/pe/${pe_link_version_var}/"
+"release_notes.html"
+msgstr ""
+"Řḗŀḗȧşḗ ƞǿŧḗş: ħŧŧƥş://docs.puppet.com/pe/${pe_link_version_var}/"
+"release_notes.html"
+
+#: puppet-enterprise-installer:1096
+msgid ""
+"If this is a monolithic configuration, run 'puppet agent -t' to complete the "
+"setup of this system."
+msgstr ""
+"Īƒ ŧħīş īş ȧ ḿǿƞǿŀīŧħīƈ ƈǿƞƒīɠŭřȧŧīǿƞ, řŭƞ 'ƥŭƥƥḗŧ ȧɠḗƞŧ -t' ŧǿ ƈǿḿƥŀḗŧḗ ŧħḗ "
+"şḗŧŭƥ ǿƒ ŧħīş şẏşŧḗḿ."
+
+#: puppet-enterprise-installer:1098
+msgid ""
+"If this is a split configuration, install or upgrade the remaining PE "
+"components, and then run puppet agent -t on the Puppet master, PuppetDB, and "
+"PE console, in that order."
+msgstr ""
+"Īƒ ŧħīş īş ȧ şƥŀīŧ ƈǿƞƒīɠŭřȧŧīǿƞ, īƞşŧȧŀŀ ǿř ŭƥɠřȧḓḗ ŧħḗ řḗḿȧīƞīƞɠ ƤḖ "
+"ƈǿḿƥǿƞḗƞŧş, ȧƞḓ ŧħḗƞ řŭƞ ƥŭƥƥḗŧ ȧɠḗƞŧ -t ǿƞ ŧħḗ Ƥŭƥƥḗŧ ḿȧşŧḗř, ƤŭƥƥḗŧḒƁ, ȧƞḓ "
+"ƤḖ ƈǿƞşǿŀḗ, īƞ ŧħȧŧ ǿřḓḗř."
+
+#: puppet-enterprise-installer:1100
+msgid "To finish configuration, run 'puppet infrastructure configure'"
+msgstr "Ŧǿ ƒīƞīşħ ƈǿƞƒīɠŭřȧŧīǿƞ, řŭƞ 'ƥŭƥƥḗŧ īƞƒřȧşŧřŭƈŧŭřḗ ƈǿƞƒīɠŭřḗ'"
+
+#: puppet-enterprise-installer:1104
+msgid "There were problems during the application of the installation catalog."
+msgstr ""
+"Ŧħḗřḗ ẇḗřḗ ƥřǿƀŀḗḿş ḓŭřīƞɠ ŧħḗ ȧƥƥŀīƈȧŧīǿƞ ǿƒ ŧħḗ īƞşŧȧŀŀȧŧīǿƞ ƈȧŧȧŀǿɠ."
+
+#: puppet-enterprise-installer:1105
+#, sh-format
+msgid "Review the logs at ${LOGFILE_PATH} and resolve any issues you can find."
+msgstr ""
+"Řḗṽīḗẇ ŧħḗ ŀǿɠş ȧŧ ${LOGFILE_PATH} ȧƞḓ řḗşǿŀṽḗ ȧƞẏ īşşŭḗş ẏǿŭ ƈȧƞ ƒīƞḓ."
+
+#: puppet-enterprise-installer:1106
+msgid ""
+"After fixing any errors, re-run the installer to complete the installation "
+"or upgrade."
+msgstr ""
+"Ȧƒŧḗř ƒīẋīƞɠ ȧƞẏ ḗřřǿřş, řḗ-řŭƞ ŧħḗ īƞşŧȧŀŀḗř ŧǿ ƈǿḿƥŀḗŧḗ ŧħḗ īƞşŧȧŀŀȧŧīǿƞ "
+"ǿř ŭƥɠřȧḓḗ."

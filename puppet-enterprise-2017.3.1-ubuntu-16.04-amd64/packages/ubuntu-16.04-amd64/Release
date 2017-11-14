@@ -1,0 +1,14 @@
+Origin: Puppetlabs
+Label: Puppet Enterprise
+Codename: xenial
+Components:
+Architectures: i386 amd64 all
+MD5Sum:
+ a3df4ac15d8312bcc936a7e512b950b5 6595 Packages.gz
+ f2d6af610ab80a6a8f1212451caf190a 23041 Packages
+SHA1:
+ a87b8a8258ae852e8213efca3c6ca9444c70645c 6595 Packages.gz
+ bfa2d6fcbc30b4c4faa943d05735939a72ac9e3e 23041 Packages
+SHA256:
+ 268a85d635d8677d1298b146f4761e9b701b87a974d238f0acf20abef52fa88e 6595 Packages.gz
+ 93dc276f4bc9f42d3a73ceb0643c670d8880646e63780dfe4511b4a6ff79bb56 23041 Packages

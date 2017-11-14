@@ -1,0 +1,550 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-23 13:18+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: satoko inoue <satoko-inoue@to-in.co.jp>, 2017\n"
+"Language-Team: Japanese (Japan) (https://www.transifex.com/puppet/teams/59186/ja_JP/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja_JP\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: puppet-enterprise-installer:203 puppet-enterprise-installer:204
+#: puppet-enterprise-installer:205 puppet-enterprise-installer:211
+msgid "Running command"
+msgstr "コマンドを実行しています"
+
+#: puppet-enterprise-installer:354 puppet-enterprise-installer:355
+#: puppet-enterprise-installer:356 puppet-enterprise-installer:362
+msgid "Puppet Enterprise Installer"
+msgstr "Puppet Enterpriseインストーラ"
+
+#: puppet-enterprise-installer:367 puppet-enterprise-installer:368
+#: puppet-enterprise-installer:369 puppet-enterprise-installer:375
+msgid "OPTIONS:"
+msgstr "オプション:"
+
+#: puppet-enterprise-installer:370 puppet-enterprise-installer:371
+#: puppet-enterprise-installer:372 puppet-enterprise-installer:378
+msgid "Use pe.conf at <PATH_TO_FILE>."
+msgstr "<PATH_TO_FILE>でpe.confを使用。"
+
+#: puppet-enterprise-installer:372 puppet-enterprise-installer:373
+#: puppet-enterprise-installer:374 puppet-enterprise-installer:380
+#, sh-format
+msgid ""
+"If you don't use this flag on installation, the installer will create a "
+"pe.conf file for you and open in your EDITOR (${EDITOR})."
+msgstr ""
+"インストールの際にこのフラグを使用しない場合、インストーラがpe.confファイルを作成し、EDITOR (${EDITOR})で開きます。"
+
+#: puppet-enterprise-installer:374 puppet-enterprise-installer:375
+#: puppet-enterprise-installer:376 puppet-enterprise-installer:382
+#, sh-format
+msgid ""
+"If you don't provide this flag on upgrade, the installer will attempt to use"
+" your pre-existing pe.conf, or if that file can't be found, it will create a"
+" pe.conf file and open it in your EDITOR (${EDITOR})."
+msgstr ""
+"アップグレードの際にこのフラグを使用しない場合、インストーラが既存のpe.confファイルの使用を試みます。または、そのファイルが見つからない場合は、pe.confファイルを作成し、EDITOR"
+" (${EDITOR})で開きます。"
+
+#: puppet-enterprise-installer:376 puppet-enterprise-installer:377
+#: puppet-enterprise-installer:378 puppet-enterprise-installer:384
+msgid ""
+"If you have a pre-existing pe.conf, the installer will overwrite it if you "
+"use this flag."
+msgstr "このフラグを使用すると、既存のpe.confがある場合に、インストーラがそれを上書きします。"
+
+#: puppet-enterprise-installer:377 puppet-enterprise-installer:378
+#: puppet-enterprise-installer:379 puppet-enterprise-installer:385
+msgid ""
+"Note that installer will create a backup of the pre-existing pe.conf before "
+"overwriting it."
+msgstr "インストーラは、上書きする前に既存のpe.confのバックアップを作成します。"
+
+#: puppet-enterprise-installer:379 puppet-enterprise-installer:380
+#: puppet-enterprise-installer:381 puppet-enterprise-installer:387
+msgid "Display debugging information."
+msgstr "デバッグ情報を表示。"
+
+#: puppet-enterprise-installer:381 puppet-enterprise-installer:382
+#: puppet-enterprise-installer:383 puppet-enterprise-installer:389
+msgid "Display this help."
+msgstr "このヘルプを表示。"
+
+#: puppet-enterprise-installer:383 puppet-enterprise-installer:384
+#: puppet-enterprise-installer:385 puppet-enterprise-installer:391
+msgid "Run in quiet mode; the installation process is not displayed."
+msgstr "クワイエットモードで実行; インストールプロセスは表示されません。"
+
+#: puppet-enterprise-installer:385 puppet-enterprise-installer:386
+#: puppet-enterprise-installer:387 puppet-enterprise-installer:393
+msgid "Display very verbose debugging information."
+msgstr "きわめて詳細なデバッグ情報を表示。"
+
+#: puppet-enterprise-installer:387 puppet-enterprise-installer:388
+#: puppet-enterprise-installer:389 puppet-enterprise-installer:395
+#, sh-format
+msgid ""
+"Assume yes/default and bypass any prompts for user input or file editing "
+"using EDITOR (${EDITOR})."
+msgstr "yes/デフォルトと見なし、EDITOR (${EDITOR})を使ったユーザ入力またはファイル編集に関するプロンプトをすべて省略。"
+
+#: puppet-enterprise-installer:388 puppet-enterprise-installer:389
+#: puppet-enterprise-installer:390 puppet-enterprise-installer:396
+msgid "Ensure that your pe.conf file is valid before using this flag."
+msgstr "このフラグを使う前に、pe.confファイルが有効であることを確認してください。"
+
+#: puppet-enterprise-installer:390 puppet-enterprise-installer:391
+#: puppet-enterprise-installer:392 puppet-enterprise-installer:398
+msgid "Prepare the system for future install."
+msgstr "今後のインストールに向けてシステムを準備。"
+
+#: puppet-enterprise-installer:391 puppet-enterprise-installer:392
+#: puppet-enterprise-installer:393 puppet-enterprise-installer:399
+msgid ""
+"Will install packages and modules, but not run the final configure command."
+msgstr "パッケージとモジュールをインストールしますが、最後の設定コマンドは実行しません。"
+
+#: puppet-enterprise-installer:429 puppet-enterprise-installer:476
+#: puppet-enterprise-installer:477 puppet-enterprise-installer:483
+#, sh-format
+msgid "${SCRIPT_NAME} must be run as root"
+msgstr "${SCRIPT_NAME}はルートとして実行する必要があります。"
+
+#: puppet-enterprise-installer:478 puppet-enterprise-installer:525
+#: puppet-enterprise-installer:526 puppet-enterprise-installer:532
+#, sh-format
+msgid "We couldn't find a PE config file at ${CONF_FILE_PATH}."
+msgstr "${CONF_FILE_PATH}でPE設定ファイルが見つかりませんでした。"
+
+#: puppet-enterprise-installer:479 puppet-enterprise-installer:526
+#: puppet-enterprise-installer:527 puppet-enterprise-installer:533
+msgid "Verify that a pe.conf exists at the path you provided."
+msgstr "指定したパスにpe.confが存在することを確認してください。"
+
+#: puppet-enterprise-installer:522 puppet-enterprise-installer:570
+#: puppet-enterprise-installer:571 puppet-enterprise-installer:577
+#, sh-format
+msgid ""
+"The -y flag cannot be used without the -c flag if a valid pe.conf cannot be "
+"found at ${ENTERPRISE_CONF_PATH}."
+msgstr "有効なpe.confが${ENTERPRISE_CONF_PATH}で見つからない場合、-yフラグは-cフラグなしでは使用できません。"
+
+#: puppet-enterprise-installer:571 puppet-enterprise-installer:619
+#: puppet-enterprise-installer:620 puppet-enterprise-installer:626
+msgid "FATAL: user_confirmation() called without an argument"
+msgstr "重大: user_confirmation()が引数なしでコールされました。"
+
+#: puppet-enterprise-installer:625 puppet-enterprise-installer:673
+#: puppet-enterprise-installer:674 puppet-enterprise-installer:680
+#, sh-format
+msgid ""
+"Proceed with upgrade/repair of ${test_existing_pe_version} using the pe.conf"
+" at ${CONF_FILE_PATH}?"
+msgstr ""
+"${CONF_FILE_PATH}でpe.confを用いて、${test_existing_pe_version}のアップグレード/修復を続行しますか?"
+
+#: puppet-enterprise-installer:627 puppet-enterprise-installer:675
+#: puppet-enterprise-installer:676 puppet-enterprise-installer:682
+#, sh-format
+msgid "Proceed with installation using the pe.conf at ${CONF_FILE_PATH}?"
+msgstr "${CONF_FILE_PATH}でpe.confを用いてインストールを続行しますか?"
+
+#: puppet-enterprise-installer:642 puppet-enterprise-installer:690
+#: puppet-enterprise-installer:691 puppet-enterprise-installer:697
+#, sh-format
+msgid "Upgrades from PE ${installed_version} are not supported."
+msgstr "PE ${installed_version}からのアップグレードはサポートされていません。"
+
+#: puppet-enterprise-installer:643 puppet-enterprise-installer:691
+#: puppet-enterprise-installer:692 puppet-enterprise-installer:698
+msgid ""
+"Review the 2016.2 migration documentation for instructions on moving to this"
+" version of PE."
+msgstr "このPEバージョンへの移行手順については、2016.2移行マニュアルを確認してください。"
+
+#: puppet-enterprise-installer:651 puppet-enterprise-installer:699
+#: puppet-enterprise-installer:891 puppet-enterprise-installer:700
+#: puppet-enterprise-installer:892 puppet-enterprise-installer:706
+#: puppet-enterprise-installer:911
+#, sh-format
+msgid ""
+"We've detected a modified auth.conf file in a format that is no longer "
+"compatible with Puppet Enterprise ${pe_version_var}."
+msgstr ""
+"Puppet Enterprise "
+"${pe_version_var}との互換性がなくなったフォーマットの修正済みauth.confファイルを検出しました。"
+
+#: puppet-enterprise-installer:654 puppet-enterprise-installer:702
+#: puppet-enterprise-installer:703 puppet-enterprise-installer:709
+msgid ""
+"After upgrading, migrate your legacy auth.conf (and any customizations) to "
+"the new file format."
+msgstr "アップグレード後に、古いauth.con(およびカスタマイズ内容)を新しいファイルフォーマットに移行する。"
+
+#: puppet-enterprise-installer:655 puppet-enterprise-installer:664
+#: puppet-enterprise-installer:703 puppet-enterprise-installer:712
+#: puppet-enterprise-installer:704 puppet-enterprise-installer:713
+#: puppet-enterprise-installer:710 puppet-enterprise-installer:719
+msgid ""
+"Refer to the auth.conf migration documentation: "
+"https://docs.puppet.com/puppetserver/latest/config_file_auth_migration.html"
+msgstr ""
+"auth.conf移行マニュアルを参照してください: "
+"https://docs.puppet.com/puppetserver/latest/config_file_auth_migration.html。"
+
+#: puppet-enterprise-installer:656 puppet-enterprise-installer:704
+#: puppet-enterprise-installer:895 puppet-enterprise-installer:705
+#: puppet-enterprise-installer:896 puppet-enterprise-installer:711
+#: puppet-enterprise-installer:915
+msgid "Continue with the upgrade and migrate auth.conf later?"
+msgstr "アップグレードを続行し、後でauth.confを移行しますか?"
+
+#: puppet-enterprise-installer:663 puppet-enterprise-installer:711
+#: puppet-enterprise-installer:712 puppet-enterprise-installer:718
+msgid ""
+"Before upgrading, migrate your legacy auth.conf (and any customizations) to "
+"the new file format."
+msgstr "アップグレード前に、古いauth.con(およびカスタマイズ内容)を新しいファイルフォーマットに移行する。"
+
+#: puppet-enterprise-installer:665 puppet-enterprise-installer:713
+#: puppet-enterprise-installer:903 puppet-enterprise-installer:714
+#: puppet-enterprise-installer:904 puppet-enterprise-installer:720
+#: puppet-enterprise-installer:923
+msgid ""
+"Would you like to quit and migrate your existing auth.conf file? Answer no "
+"if you have already completed this step."
+msgstr "終了し、既存のauth.confファイルを移行しますか? すでにこの手順を完了している場合は、noを選択してください。"
+
+#: puppet-enterprise-installer:732 puppet-enterprise-installer:938
+#: puppet-enterprise-installer:939 puppet-enterprise-installer:958
+#, sh-format
+msgid ""
+"We've detected an existing Puppet Enterprise ${existing_pe_version_var} "
+"install."
+msgstr "既存のPuppet Enterprise ${existing_pe_version_var}インストールを検出しました。"
+
+#: puppet-enterprise-installer:733 puppet-enterprise-installer:939
+#: puppet-enterprise-installer:940 puppet-enterprise-installer:959
+msgid "Would you like to proceed with text-mode upgrade/repair?"
+msgstr "テキストモードのアップグレード/修復を続行しますか?"
+
+#: puppet-enterprise-installer:742 puppet-enterprise-installer:948
+#: puppet-enterprise-installer:949 puppet-enterprise-installer:968
+msgid "Puppet Enterprise offers two different methods of installation."
+msgstr "Puppet Enterpriseには、2種類のインストール方法があります。"
+
+#: puppet-enterprise-installer:744 puppet-enterprise-installer:950
+#: puppet-enterprise-installer:951 puppet-enterprise-installer:970
+msgid "Guided install"
+msgstr "ガイドつきインストール"
+
+#: puppet-enterprise-installer:746 puppet-enterprise-installer:952
+#: puppet-enterprise-installer:953 puppet-enterprise-installer:972
+msgid "Recommended for beginners."
+msgstr "初心者にお勧めします。"
+
+#: puppet-enterprise-installer:747 puppet-enterprise-installer:953
+#: puppet-enterprise-installer:954 puppet-enterprise-installer:973
+msgid ""
+"This method will install and configure a temporary webserver to walk you "
+"through the various configuration options."
+msgstr "この方法では、一時的なWebサーバをインストールおよび設定し、各種の設定オプションを案内します。"
+
+#: puppet-enterprise-installer:749 puppet-enterprise-installer:955
+#: puppet-enterprise-installer:956 puppet-enterprise-installer:975
+msgid ""
+"NOTE: This method requires you to be able to access port 3000 on this "
+"machine from your desktop web browser."
+msgstr "注意: この方法では、このマシン上のデスクトップのWebブラウザからポート3000にアクセスする必要があります。"
+
+#: puppet-enterprise-installer:751 puppet-enterprise-installer:957
+#: puppet-enterprise-installer:958 puppet-enterprise-installer:977
+msgid "Text-mode"
+msgstr "テキストモード"
+
+#: puppet-enterprise-installer:753 puppet-enterprise-installer:959
+#: puppet-enterprise-installer:960 puppet-enterprise-installer:979
+msgid "Recommended for advanced users."
+msgstr "上級ユーザにお勧めします。"
+
+#: puppet-enterprise-installer:754 puppet-enterprise-installer:960
+#: puppet-enterprise-installer:961 puppet-enterprise-installer:980
+#, sh-format
+msgid ""
+"This method will open your EDITOR (${EDITOR}) with a PE config file "
+"(pe.conf) for you to edit before you proceed with installation."
+msgstr ""
+"この方法では、PE設定ファイル(pe.conf)とともにEDITOR "
+"(${EDITOR})を開き、ユーザによる編集を行ってからインストールを続行します。 "
+
+#: puppet-enterprise-installer:756 puppet-enterprise-installer:962
+#: puppet-enterprise-installer:963 puppet-enterprise-installer:982
+msgid ""
+"The pe.conf file is a HOCON formatted file that declares parameters and "
+"values needed to install and configure PE."
+msgstr ""
+"pe.confファイルはHOCON形式のファイルで、Puppet "
+"Enterpriseをインストールして構成する際に必要なパラメータと値を明示するものです。"
+
+#: puppet-enterprise-installer:757 puppet-enterprise-installer:963
+#: puppet-enterprise-installer:964 puppet-enterprise-installer:983
+msgid "We recommend that you review it carefully before proceeding."
+msgstr "続行前に、慎重に検証することを推奨します。"
+
+#: puppet-enterprise-installer:761 puppet-enterprise-installer:967
+#: puppet-enterprise-installer:968 puppet-enterprise-installer:987
+msgid "How to proceed?"
+msgstr "どのように続行しますか?"
+
+#: puppet-enterprise-installer:777 puppet-enterprise-installer:983
+#: puppet-enterprise-installer:984 puppet-enterprise-installer:1003
+msgid "We're preparing the Web Installer..."
+msgstr "Webインストーラを準備しています..."
+
+#: puppet-enterprise-installer:788 puppet-enterprise-installer:994
+#: puppet-enterprise-installer:995 puppet-enterprise-installer:1014
+#, sh-format
+msgid ""
+"Go to https://${platform_hostname}:3000 in your browser to continue "
+"installation."
+msgstr "ブラウザでhttps://${platform_hostname}:3000を開き、インストールを続行してください。"
+
+#: puppet-enterprise-installer:789 puppet-enterprise-installer:995
+#: puppet-enterprise-installer:996 puppet-enterprise-installer:1015
+msgid ""
+"Be sure to use 'https://' and that port 3000 is reachable through the "
+"firewall."
+msgstr "ファイアウォールを通して'https://'およびポート3000にアクセスできることを確認してください。"
+
+#: puppet-enterprise-installer:801 puppet-enterprise-installer:1007
+#: puppet-enterprise-installer:1008 puppet-enterprise-installer:1027
+#, sh-format
+msgid "We've found a pe.conf file at ${ENTERPRISE_CONF_PATH}."
+msgstr "${ENTERPRISE_CONF_PATH}でpe.confファイルが見つかりました。"
+
+#: puppet-enterprise-installer:813 puppet-enterprise-installer:1019
+#: puppet-enterprise-installer:1020 puppet-enterprise-installer:1039
+#, sh-format
+msgid ""
+"We've found a pe.conf file at ${CONF_FILE_PATH}. Do you want to proceed "
+"using this file? Answer Y to proceed with configuration. Answer N to open "
+"the file in your EDITOR (${EDITOR})."
+msgstr ""
+"${CONF_FILE_PATH}でpe.confファイルが見つかりました。このファイルを使って続行しますか? "
+"Yを選択すると、設定を続行します。Nを選択すると、EDITOR (${EDITOR})で当該ファイルが開きます。"
+
+#: puppet-enterprise-installer:816 puppet-enterprise-installer:1022
+#: puppet-enterprise-installer:1023 puppet-enterprise-installer:1042
+#, sh-format
+msgid "We'll proceed using pe.conf found at ${CONF_FILE_PATH}..."
+msgstr "${CONF_FILE_PATH}で見つかったpe.confを使用して続行します..."
+
+#: puppet-enterprise-installer:821 puppet-enterprise-installer:1027
+#: puppet-enterprise-installer:1028 puppet-enterprise-installer:1047
+#, sh-format
+msgid "We are creating a new pe.conf file at ${CONF_FILE_PATH}..."
+msgstr "${CONF_FILE_PATH}で新しいpe.confファイルを作成しています..."
+
+#: puppet-enterprise-installer:834 puppet-enterprise-installer:1040
+#: puppet-enterprise-installer:1041 puppet-enterprise-installer:1060
+#, sh-format
+msgid "We're opening ${CONF_FILE_PATH} in ${EDITOR}..."
+msgstr "${EDITOR}で${CONF_FILE_PATH}を開いています..."
+
+#: puppet-enterprise-installer:836 puppet-enterprise-installer:1042
+#: puppet-enterprise-installer:1043 puppet-enterprise-installer:1062
+#, sh-format
+msgid "You edited ${CONF_FILE_PATH} in ${EDITOR}."
+msgstr "${EDITOR}で${CONF_FILE_PATH}を編集しました。"
+
+#: puppet-enterprise-installer:846 puppet-enterprise-installer:1052
+#: puppet-enterprise-installer:1053 puppet-enterprise-installer:1072
+#, sh-format
+msgid "We're checking if ${CONF_FILE_PATH} contains valid HOCON syntax..."
+msgstr "${CONF_FILE_PATH}に有効なHOCON構文が含まれていることを確認しています..."
+
+#: puppet-enterprise-installer:865 puppet-enterprise-installer:1071
+#: puppet-enterprise-installer:1072 puppet-enterprise-installer:1091
+#, sh-format
+msgid "Your pe.conf file at ${CONF_FILE_PATH} contains errors."
+msgstr "${CONF_FILE_PATH}のpe.confファイルにエラーが含まれています。"
+
+#: puppet-enterprise-installer:866 puppet-enterprise-installer:1072
+#: puppet-enterprise-installer:1073 puppet-enterprise-installer:1092
+msgid "Check your pe.conf file for errors and try re-running the installer."
+msgstr "pe.confファイルのエラーを確認し、インストールの再実行を試みてください。 "
+
+#: puppet-enterprise-installer:902 puppet-enterprise-installer:1108
+#: puppet-enterprise-installer:1109 puppet-enterprise-installer:1128
+msgid ""
+"Unknown Platform. Visit "
+"https://docs.puppetlabs.com/pe/latest/install_system_requirements.html"
+msgstr ""
+"不明なプラットフォーム。https://docs.puppetlabs.com/pe/latest/install_system_requirements.htmlを開いてください。"
+
+#: puppet-enterprise-installer:947 puppet-enterprise-installer:1154
+#: puppet-enterprise-installer:1155 puppet-enterprise-installer:1294
+msgid "We're installing the Puppet Agent..."
+msgstr "Puppet Agentをインストールしています..."
+
+#: puppet-enterprise-installer:1016 puppet-enterprise-installer:1229
+#: puppet-enterprise-installer:1230 puppet-enterprise-installer:1379
+#, sh-format
+msgid "We're configuring PE using ${CONF_FILE_PATH}..."
+msgstr "${CONF_FILE_PATH}を使ってPEを設定しています..."
+
+#: puppet-enterprise-installer:1072 puppet-enterprise-installer:1285
+#: puppet-enterprise-installer:1300 puppet-enterprise-installer:1449
+msgid "* waiting for an agent run to complete..."
+msgstr "* agent実行が完了するまで待機しています..."
+
+#: puppet-enterprise-installer:1090 puppet-enterprise-installer:1303
+#: puppet-enterprise-installer:1318 puppet-enterprise-installer:1467
+msgid "Puppet Enterprise configuration complete!"
+msgstr "Puppet Enterpriseの設定が完了しました!"
+
+#: puppet-enterprise-installer:1091 puppet-enterprise-installer:1304
+#: puppet-enterprise-installer:1319 puppet-enterprise-installer:1468
+#, sh-format
+msgid ""
+"Documentation: https://docs.puppet.com/pe/${pe_link_version_var}/index.html"
+msgstr "マニュアル: https://docs.puppet.com/pe/${pe_link_version_var}/index.html"
+
+#: puppet-enterprise-installer:1092 puppet-enterprise-installer:1305
+#: puppet-enterprise-installer:1320 puppet-enterprise-installer:1469
+#, sh-format
+msgid ""
+"Release notes: "
+"https://docs.puppet.com/pe/${pe_link_version_var}/release_notes.html"
+msgstr ""
+"リリースノート: "
+"https://docs.puppet.com/pe/${pe_link_version_var}/release_notes.html"
+
+#: puppet-enterprise-installer:1096 puppet-enterprise-installer:1309
+#: puppet-enterprise-installer:1324 puppet-enterprise-installer:1473
+msgid ""
+"If this is a monolithic configuration, run 'puppet agent -t' to complete the"
+" setup of this system."
+msgstr "モノリシック設定の場合は、'puppet agent -t'を実行してシステムのセットアップを完了してください。"
+
+#: puppet-enterprise-installer:1098 puppet-enterprise-installer:1311
+#: puppet-enterprise-installer:1326 puppet-enterprise-installer:1475
+msgid ""
+"If this is a split configuration, install or upgrade the remaining PE "
+"components, and then run puppet agent -t on the Puppet master, PuppetDB, and"
+" PE console, in that order."
+msgstr ""
+"分割設定の場合は、残りのPEコンポーネントをインストールまたはアップグレードしてから、Puppet "
+"master、PuppetDB、PEの順にpuppet agent -tを実行してください。"
+
+#: puppet-enterprise-installer:1100 puppet-enterprise-installer:1313
+#: puppet-enterprise-installer:1328 puppet-enterprise-installer:1477
+msgid "To finish configuration, run 'puppet infrastructure configure'"
+msgstr "設定を終えるには、'puppet infrastructure configure'を実行します。"
+
+#: puppet-enterprise-installer:1104 puppet-enterprise-installer:1317
+#: puppet-enterprise-installer:1332 puppet-enterprise-installer:1485
+msgid ""
+"There were problems during the application of the installation catalog."
+msgstr "インストールカタログの適用時に問題が生じました。"
+
+#: puppet-enterprise-installer:1105 puppet-enterprise-installer:1318
+#: puppet-enterprise-installer:1333 puppet-enterprise-installer:1486
+#, sh-format
+msgid ""
+"Review the logs at ${LOGFILE_PATH} and resolve any issues you can find."
+msgstr "${LOGFILE_PATH}のログを確認し、見つかった問題を解決してください。"
+
+#: puppet-enterprise-installer:1106 puppet-enterprise-installer:1319
+#: puppet-enterprise-installer:1334 puppet-enterprise-installer:1487
+msgid ""
+"After fixing any errors, re-run the installer to complete the installation "
+"or upgrade."
+msgstr "エラーの修正後、インストーラを再度実行し、インストールまたはアップグレードを完了してください。"
+
+#: puppet-enterprise-installer:796 puppet-enterprise-installer:797
+#: puppet-enterprise-installer:816
+#, sh-format
+msgid " Upgrades from PE ${build_version} are not supported."
+msgstr "PE ${build_version}からのアップグレードはサポートされていません。"
+
+#: puppet-enterprise-installer:815 puppet-enterprise-installer:816
+#: puppet-enterprise-installer:835
+#, sh-format
+msgid ""
+" Build downgrades are not supported. Attempted to downgrade from PE "
+"${build_version} to PE ${PE_BUILD_VERSION}."
+msgstr ""
+" ビルドのダウングレードはサポートされていません。PE ${build_version}からPE "
+"${PE_BUILD_VERSION}へのダウングレードが試行されました。"
+
+#: puppet-enterprise-installer:832 puppet-enterprise-installer:833
+#: puppet-enterprise-installer:852
+#, sh-format
+msgid ""
+" Agent downgrades are not supported. Attempted to downgrade from Agent "
+"${agent_version} to Agent ${AIO_INSTALL_VERSION}."
+msgstr ""
+" Agentのダウングレードはサポートされてません。Agent ${agent_version}からAgent "
+"${AIO_INSTALL_VERSION}へのダウングレードが試行されました。"
+
+#: puppet-enterprise-installer:849 puppet-enterprise-installer:850
+#: puppet-enterprise-installer:869
+#, sh-format
+msgid " Upgrades from PE ${installed_version} are not supported."
+msgstr "PE ${installed_version}からのアップグレードはサポートされていません。"
+
+#: puppet-enterprise-installer:850 puppet-enterprise-installer:851
+#: puppet-enterprise-installer:870
+msgid ""
+" Review the 2016.2 migration documentation for instructions on moving to "
+"this version of PE."
+msgstr "このPEバージョンへの移行手順については、2016.2移行マニュアルを確認してください。"
+
+#: puppet-enterprise-installer:894 puppet-enterprise-installer:895
+#: puppet-enterprise-installer:914
+msgid ""
+"After upgrading, migrate your legacy auth.conf (and any customizations) to "
+"the new file format. Refer to the auth.conf migration documentation: "
+"https://docs.puppet.com/puppetserver/latest/config_file_auth_migration.html"
+msgstr ""
+"アップグレード後に、古いauth.conf(およびカスタマイズ内容)を新しいファイルフォーマットに移行する。auth.conf移行マニュアルを参照してください:"
+" "
+"https://docs.puppet.com/puppetserver/latest/config_file_auth_migration.html。"
+
+#: puppet-enterprise-installer:902 puppet-enterprise-installer:903
+#: puppet-enterprise-installer:922
+msgid ""
+"Before upgrading, migrate your legacy auth.conf (and any customizations) to "
+"the new file format. Refer to the auth.conf migration documentation: "
+"https://docs.puppet.com/puppetserver/latest/config_file_auth_migration.html"
+msgstr ""
+"アップグレード前に、古いauth.conf(およびカスタマイズ内容)を新しいファイルフォーマットに移行する。auth.conf移行マニュアルを参照してください:"
+" "
+"https://docs.puppet.com/puppetserver/latest/config_file_auth_migration.html。"
+
+#: puppet-enterprise-installer:1353
+msgid "Validation failure."
+msgstr "検証の失敗。"
+
+#: puppet-enterprise-installer:1354
+#, sh-format
+msgid "Rolling puppet-agent back to ${previous_aio_version}."
+msgstr "puppet-agentを${previous_aio_version}へロールバックしています。"
+
+#: puppet-enterprise-installer:1355
+#, sh-format
+msgid "Rolling pe-modules back to PE ${previous_pe_build}."
+msgstr "pe-modulesをPE ${previous_pe_build}へロールバックしています。"
